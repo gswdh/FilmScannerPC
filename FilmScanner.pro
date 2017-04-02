@@ -15,6 +15,15 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    ftd2xx.h
 
 FORMS    += mainwindow.ui
+
+DISTFILES +=
+
+
+win32: LIBS += -L$$PWD/./ -lftd2xx
+
+INCLUDEPATH += $$PWD/.
+DEPENDPATH += $$PWD/.

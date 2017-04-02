@@ -5,7 +5,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-
     ui->setupUi(this);
 }
 
@@ -13,6 +12,9 @@ MainWindow::~MainWindow()
 {
 
     delete ui;
+
+    QPixmap picture("D:/FilmScannerPC/background.png");
+    ui->labelPicture->setPixmap(picture.scaled(120, 160, Qt::KeepAspectRatio));
 }
 
 void MainWindow::on_pushButtonStart_clicked()
@@ -42,4 +44,9 @@ void MainWindow::on_pushButtonStart_clicked()
     msg += "s.";
 
     ui->labelOutput->setText(msg);
+}
+
+void MainWindow::write_to_outputlabel(QString message)
+{
+    ui->labelOutput->setText(message);
 }
