@@ -13,10 +13,14 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    ftdi.cpp \
+    file.cpp
 
 HEADERS  += mainwindow.h \
-    ftd2xx.h
+    ftd2xx.h \
+    ftdi.h \
+    file.h
 
 FORMS    += mainwindow.ui
 

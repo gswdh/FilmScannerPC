@@ -36,7 +36,7 @@
      </rect>
     </property>
     <property name="sizePolicy">
-     <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
       <horstretch>1</horstretch>
       <verstretch>1</verstretch>
      </sizepolicy>

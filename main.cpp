@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include "ftd2xx.h"
+#include "ftdi.h"
+#include "file.h"
+
 
 int main(int argc, char *argv[]){
 
@@ -9,19 +11,17 @@ int main(int argc, char *argv[]){
     MainWindow w;
     w.show();
 
-    DWORD numDevs;
-    FT_STATUS ftStatus;
+    char file_dest[] = "frame1.pgm";
 
-    // Open device number 1
-    ftStatus = FT_ListDevices(&numDevs, NULL, FT_LIST_NUMBER_ONLY);
+    file myFile = file(file_dest, 1, 2048, BIT_DEPTH_8);
 
-    QString n_devices = QString::number(numDevs);
+    unsigned short int line[2048];
 
-    QString msg;
-    msg += "Number of devices: ";
-    msg += n_devices;
+    for(int i = 0; i < 2048; i++)line[i] = i % 256;
 
-    w.write_to_outputlabel(msg);
+    myFile.write_line(line);
+
+    myFile.close();
 
     return a.exec();
 }
