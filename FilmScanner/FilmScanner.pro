@@ -26,11 +26,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    ftdi.cpp
+    ftdi.cpp \
+    scanner.cpp
 
 HEADERS += \
         mainwindow.h \
-    ftdi.h
+    ftdi.h \
+    scanner.h
 
 FORMS += \
         mainwindow.ui

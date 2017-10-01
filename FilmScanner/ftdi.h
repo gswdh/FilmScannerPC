@@ -11,10 +11,10 @@ struct FTDIData{
 
 // Devices variable
 struct FTDIDevices{
-    char device1[32];
-    char device2[32];
-    char device3[32];
-    char device4[32];
+    char device1[64];
+    char device2[64];
+    char device3[64];
+    char device4[64];
     int ndevs = 0;
 };
 

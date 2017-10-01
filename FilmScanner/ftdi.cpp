@@ -9,8 +9,27 @@ ftdi::ftdi()
 
 int ftdi::ListDevices(FTDIDevices *devices)
 {
+    // pointer to array of 3 pointers
+    char *BufPtrs[5];
 
-    return 0;
+    // initialize the array of pointers
+    BufPtrs[0] = devices->device1;
+    BufPtrs[1] = devices->device2;
+    BufPtrs[2] = devices->device3;
+    BufPtrs[3] = devices->device4;
+    BufPtrs[4] = NULL; // last entry should be NULL
+
+    // Number of
+    DWORD numDevs;
+
+    // Get the list
+    ftStatus = FT_ListDevices(BufPtrs, &numDevs, FT_LIST_ALL|FT_OPEN_BY_SERIAL_NUMBER);
+
+     devices->ndevs = numDevs;
+
+    // Status message
+    if(ftStatus == FT_OK) return 0;
+    else return 1;
 }
 
 int ftdi::Connect(char serial[])
@@ -78,7 +97,7 @@ int ftdi::Read(FTDIData *data)
     if(ftHandle == NULL) return 2;
 
     // Attempt to read the maximum amount of data
-    ftStatus = FT_Read(ftHandle, data->buffer, 65535, &data->buff_len);
+    //ftStatus = FT_Read(ftHandle, data->buffer, 65535, &data->buff_len);
 
     // Status message
     if(ftStatus == FT_OK) return 0;
