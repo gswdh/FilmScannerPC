@@ -15,9 +15,12 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSlider>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
@@ -34,8 +37,17 @@ public:
     QVBoxLayout *verticalLayout;
     QPushButton *refresh_button;
     QComboBox *devices_box;
+    QLabel *label;
+    QLineEdit *gainlineEdit;
+    QSlider *gainSlider;
+    QLabel *label_2;
+    QLineEdit *offsetlineEdit;
+    QSlider *offsetSlider;
+    QLabel *label_3;
+    QLineEdit *frames_lineedit;
     QSpacerItem *verticalSpacer;
     QPushButton *startstop_button;
+    QLabel *preview_label;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -65,6 +77,50 @@ public:
 
         verticalLayout->addWidget(devices_box);
 
+        label = new QLabel(verticalLayoutWidget);
+        label->setObjectName(QStringLiteral("label"));
+
+        verticalLayout->addWidget(label);
+
+        gainlineEdit = new QLineEdit(verticalLayoutWidget);
+        gainlineEdit->setObjectName(QStringLiteral("gainlineEdit"));
+
+        verticalLayout->addWidget(gainlineEdit);
+
+        gainSlider = new QSlider(verticalLayoutWidget);
+        gainSlider->setObjectName(QStringLiteral("gainSlider"));
+        gainSlider->setMaximum(65535);
+        gainSlider->setOrientation(Qt::Horizontal);
+
+        verticalLayout->addWidget(gainSlider);
+
+        label_2 = new QLabel(verticalLayoutWidget);
+        label_2->setObjectName(QStringLiteral("label_2"));
+
+        verticalLayout->addWidget(label_2);
+
+        offsetlineEdit = new QLineEdit(verticalLayoutWidget);
+        offsetlineEdit->setObjectName(QStringLiteral("offsetlineEdit"));
+
+        verticalLayout->addWidget(offsetlineEdit);
+
+        offsetSlider = new QSlider(verticalLayoutWidget);
+        offsetSlider->setObjectName(QStringLiteral("offsetSlider"));
+        offsetSlider->setMaximum(65535);
+        offsetSlider->setOrientation(Qt::Horizontal);
+
+        verticalLayout->addWidget(offsetSlider);
+
+        label_3 = new QLabel(verticalLayoutWidget);
+        label_3->setObjectName(QStringLiteral("label_3"));
+
+        verticalLayout->addWidget(label_3);
+
+        frames_lineedit = new QLineEdit(verticalLayoutWidget);
+        frames_lineedit->setObjectName(QStringLiteral("frames_lineedit"));
+
+        verticalLayout->addWidget(frames_lineedit);
+
         verticalSpacer = new QSpacerItem(20, 300, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout->addItem(verticalSpacer);
@@ -74,6 +130,11 @@ public:
 
         verticalLayout->addWidget(startstop_button);
 
+        preview_label = new QLabel(centralWidget);
+        preview_label->setObjectName(QStringLiteral("preview_label"));
+        preview_label->setGeometry(QRect(40, 20, 768, 512));
+        preview_label->setMinimumSize(QSize(768, 512));
+        preview_label->setMaximumSize(QSize(768, 512));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
@@ -95,7 +156,11 @@ public:
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", Q_NULLPTR));
         refresh_button->setText(QApplication::translate("MainWindow", "Refresh", Q_NULLPTR));
+        label->setText(QApplication::translate("MainWindow", "Gain", Q_NULLPTR));
+        label_2->setText(QApplication::translate("MainWindow", "Offset", Q_NULLPTR));
+        label_3->setText(QApplication::translate("MainWindow", "Frames", Q_NULLPTR));
         startstop_button->setText(QApplication::translate("MainWindow", "Start", Q_NULLPTR));
+        preview_label->setText(QString());
     } // retranslateUi
 
 };

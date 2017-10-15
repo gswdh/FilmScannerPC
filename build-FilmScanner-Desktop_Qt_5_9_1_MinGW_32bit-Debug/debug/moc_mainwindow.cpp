@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[5];
-    char stringdata0[91];
+    QByteArrayData data[6];
+    char stringdata0[98];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -34,12 +34,13 @@ static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
 QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
 QT_MOC_LITERAL(1, 11, 24), // "startstop_button_clicked"
 QT_MOC_LITERAL(2, 36, 0), // ""
-QT_MOC_LITERAL(3, 37, 25), // "on_refresh_button_clicked"
-QT_MOC_LITERAL(4, 63, 27) // "on_startstop_button_clicked"
+QT_MOC_LITERAL(3, 37, 6), // "device"
+QT_MOC_LITERAL(4, 44, 25), // "on_refresh_button_clicked"
+QT_MOC_LITERAL(5, 70, 27) // "on_startstop_button_clicked"
 
     },
     "MainWindow\0startstop_button_clicked\0"
-    "\0on_refresh_button_clicked\0"
+    "\0device\0on_refresh_button_clicked\0"
     "on_startstop_button_clicked"
 };
 #undef QT_MOC_LITERAL
@@ -58,14 +59,14 @@ static const uint qt_meta_data_MainWindow[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,   29,    2, 0x06 /* Public */,
+       1,    1,   29,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       3,    0,   30,    2, 0x08 /* Private */,
-       4,    0,   31,    2, 0x08 /* Private */,
+       4,    0,   32,    2, 0x08 /* Private */,
+       5,    0,   33,    2, 0x08 /* Private */,
 
  // signals: parameters
-    QMetaType::Void,
+    QMetaType::Void, QMetaType::QString,    3,
 
  // slots: parameters
     QMetaType::Void,
@@ -80,7 +81,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         MainWindow *_t = static_cast<MainWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->startstop_button_clicked(); break;
+        case 0: _t->startstop_button_clicked((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 1: _t->on_refresh_button_clicked(); break;
         case 2: _t->on_startstop_button_clicked(); break;
         default: ;
@@ -89,14 +90,13 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         int *result = reinterpret_cast<int *>(_a[0]);
         void **func = reinterpret_cast<void **>(_a[1]);
         {
-            typedef void (MainWindow::*_t)();
+            typedef void (MainWindow::*_t)(QString );
             if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MainWindow::startstop_button_clicked)) {
                 *result = 0;
                 return;
             }
         }
     }
-    Q_UNUSED(_a);
 }
 
 const QMetaObject MainWindow::staticMetaObject = {
@@ -136,9 +136,10 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void MainWindow::startstop_button_clicked()
+void MainWindow::startstop_button_clicked(QString _t1)
 {
-    QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
+    void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
+    QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

@@ -6,7 +6,7 @@
 // Data variable
 struct FTDIData{
     char buffer[65535];
-    int buff_len = 0;
+    unsigned int buff_len = 0;
 };
 
 // Devices variable
@@ -15,7 +15,7 @@ struct FTDIDevices{
     char device2[64];
     char device3[64];
     char device4[64];
-    int ndevs = 0;
+    unsigned int ndevs = 0;
 };
 
 class ftdi

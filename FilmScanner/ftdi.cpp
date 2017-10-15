@@ -97,7 +97,7 @@ int ftdi::Read(FTDIData *data)
     if(ftHandle == NULL) return 2;
 
     // Attempt to read the maximum amount of data
-    //ftStatus = FT_Read(ftHandle, data->buffer, 65535, &data->buff_len);
+    ftStatus = FT_Read(ftHandle, data->buffer, 65535, (DWORD*)data->buff_len);
 
     // Status message
     if(ftStatus == FT_OK) return 0;

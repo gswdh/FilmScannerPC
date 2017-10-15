@@ -4,6 +4,8 @@
 #include <QMainWindow>
 
 #include "iostream"
+#include <pthread.h>
+#include <ctime>
 
 #include "scanner.h"
 #include "ftdi.h"
@@ -31,6 +33,8 @@ signals:
 
 private:
     Ui::MainWindow *ui;
+    void StopScanning(void);
+    void StartScanning(void);
 };
 
 #endif // MAINWINDOW_H

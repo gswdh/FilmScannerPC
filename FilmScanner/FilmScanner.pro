@@ -27,12 +27,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     ftdi.cpp \
-    scanner.cpp
+    scanner.cpp \
+    output.cpp
 
 HEADERS += \
         mainwindow.h \
     ftdi.h \
-    scanner.h
+    scanner.h \
+    output.h
 
 FORMS += \
         mainwindow.ui
