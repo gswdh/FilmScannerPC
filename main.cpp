@@ -1,18 +1,24 @@
 #include <iostream>
-#include "ftdi.h"
 #include "scanner.h"
 
 using namespace std;
 
 int main()
 {
-	ftdi ft;
 
-	if(ft.connect("GSW1G8LTV") == FT_OK)
-		cout << "Connected." << endl;
 
-	else
-		cout << "Could not connect." << endl;
+	scanner scan;
 
-	ft.disconnect();
+	int result = scan.connect("GS1FPQH5");
+
+	scan.scan(0);
+	scan.scan(1);
+	scan.scan(0);
+	scan.scan(1);
+	scan.scan(0);
+	scan.scan(1);
+
+
+
+
 }
