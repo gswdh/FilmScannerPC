@@ -20,6 +20,9 @@
 #define DAC_GAIN_ADDR 7
 #define DAC_OFFSET_ADDR 8
 
+// GSBUS REGISTER VALUES
+#define MTR_EN
+
 class scanner
 {
 private:
@@ -29,5 +32,18 @@ public:
 	scanner();
 	int connect(std::string serial_n);
 	int scan(int state);
+	int setReg(uint32_t addr, uint32_t data);
+	int setBlackLevel(uint32_t level);
+	int setGain(double gain);
+	int setScanSampleMode(uint32_t mode);
+	int setScanFrameRate(uint32_t rate);
+	int setScanEnable(uint32_t state);
+	int setLEDBrightness(double level);
+	int setMotorSpeed(uint32_t speed, uint32_t dir);
+	int setMotorEnable(uint32_t enable);
+	int init(std::string serial_n);
 	~scanner();
 };
+
+
+

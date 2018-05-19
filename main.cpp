@@ -11,13 +11,16 @@ int main()
 
 	int result = scan.connect("GS1FPQH5");
 
-	scan.scan(0);
-	scan.scan(1);
-	scan.scan(0);
-	scan.scan(1);
-	scan.scan(0);
-	scan.scan(1);
+	uint32_t offset = 47513;
+	double gain = 1;
 
+	scan.setScanEnable(1);
+
+	while(offset != 65536)
+	{
+		scan.setBlackLevel(offset);
+		scan.setGain(gain);
+	}
 
 
 

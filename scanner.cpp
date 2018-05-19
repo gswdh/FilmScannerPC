@@ -10,7 +10,27 @@ scanner::~scanner()
 	ft.disconnect();
 }
 
+int scanner::init(std::string serial_n)
+{
+	int scan_result = -1;
 
+	// Connect to the scanner
+	scan_result = this->connect(serial_n);
+
+	// Setup the black level
+	scan_result = this->setBlackLevel(39000);
+
+	// Set the gain to the lowest
+	scan_result = this->setGain(1);
+
+	// Set the motor speed for full speed scan
+	scan_result = this->setMotorSpeed(37306, 1);
+
+
+
+	// Return result
+	return scan_result;
+}
 
 int scanner::connect(std::string serial_n)
 {
@@ -27,13 +47,10 @@ int scanner::connect(std::string serial_n)
 	return ft_result;
 }
 
-int scanner::scan(int state)
+int scanner::setReg(uint32_t addr, uint32_t data)
 {
-
 	// Setup the packet values
-	uint32_t data = state;
-	uint32_t addr = 4;
-	uint16_t gprg = 0;	// No reset
+	uint16_t gprg = 0;
 	uint8_t packet[128];
 	uint8_t nBytes;
 
@@ -45,4 +62,59 @@ int scanner::scan(int state)
 
 	// Return the error
 	return ft_result;
+}
+
+int scanner::setScanSampleMode(uint32_t mode)
+{
+	return this->setReg(SCAN_SUB_SAMPLE_ADDR, mode);
+}
+
+int scanner::setScanFrameRate(uint32_t rate)
+{
+	return this->setReg(SCAN_FRAME_RATE_ADDR, rate);
+}
+
+int scanner::setScanEnable(uint32_t state)
+{
+	return this->setReg(SCAN_EN_ADDR, state);
+}
+
+int scanner::setLEDBrightness(double level)
+{
+	// Convert from a float
+	uint32_t pwm_level = 255 * level;
+
+	return this->setReg(LED_PWM_ADDR, pwm_level);
+}
+
+int scanner::setMotorSpeed(uint32_t speed, uint32_t dir)
+{
+	int scan_result = -1;
+
+	scan_result = this->setReg(MTR_SPEED_ADDR, speed);
+	scan_result = this->setReg(MTR_DIR_ADDR, dir);
+
+	return scan_result;
+}
+
+int scanner::setMotorEnable(uint32_t enable)
+{
+	return this->setReg(MTR_EN_ADDR, enable);
+}
+
+int scanner::setBlackLevel(uint32_t level)
+{
+	return this->setReg(DAC_OFFSET_ADDR, level);
+}
+
+int scanner::setGain(double gain)
+{
+	// Convert the gain for something for a reg
+	uint32_t gain_level = 65535 / gain;
+
+	// Make a cap
+	if(gain_level > 65535) gain_level = 65535;
+
+	// Set the reg
+	return this->setReg(DAC_GAIN_ADDR, gain_level);
 }
