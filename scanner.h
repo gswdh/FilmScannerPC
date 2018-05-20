@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <thread>
+#include <vector>
 
 // Status return values
 #define SCAN_OK 0
@@ -42,6 +43,8 @@ public:
 	int setMotorSpeed(uint32_t speed, uint32_t dir);
 	int setMotorEnable(uint32_t enable);
 	int init(std::string serial_n);
+	int getData(std::vector<unsigned char>* pData, uint32_t nBytes);
+	int getQueue(unsigned long int* nBytes);
 	~scanner();
 };
 

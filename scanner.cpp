@@ -26,6 +26,18 @@ int scanner::init(std::string serial_n)
 	// Set the motor speed for full speed scan
 	scan_result = this->setMotorSpeed(37306, 1);
 
+	// Set the LED value to off
+	scan_result = this->setLEDBrightness(0);
+
+	// Stop any scanning
+	scan_result = this->setScanEnable(0);
+
+	// Full resolution scan
+	scan_result = this->setScanSampleMode(0);
+
+	// Full frame rate
+	scan_result = this->setScanFrameRate(0);
+
 
 
 	// Return result
@@ -84,6 +96,9 @@ int scanner::setLEDBrightness(double level)
 	// Convert from a float
 	uint32_t pwm_level = 255 * level;
 
+	// Make a cap
+	if(pwm_level > 255) pwm_level = 255;
+
 	return this->setReg(LED_PWM_ADDR, pwm_level);
 }
 
@@ -117,4 +132,20 @@ int scanner::setGain(double gain)
 
 	// Set the reg
 	return this->setReg(DAC_GAIN_ADDR, gain_level);
+}
+
+int scanner::getData(std::vector<unsigned char>* pData, uint32_t nBytes)
+{
+	int ft_result = -1;
+
+	// Now get the data
+	ft_result = ft.receive(pData, nBytes);
+
+	// Result
+	return ft_result;
+}
+
+int scanner::getQueue(unsigned long int* nBytes)
+{
+	return ft.getQueLen(nBytes);
 }
