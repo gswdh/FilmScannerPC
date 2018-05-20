@@ -18,7 +18,7 @@ int scanner::init(std::string serial_n)
 	scan_result = this->connect(serial_n);
 
 	// Setup the black level
-	scan_result = this->setBlackLevel(39000);
+	scan_result = this->setBlackLevel(38275);
 
 	// Set the gain to the lowest
 	scan_result = this->setGain(1);
