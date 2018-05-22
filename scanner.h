@@ -5,6 +5,7 @@
 #include <string.h>
 #include <thread>
 #include <vector>
+#include <functional>
 
 // Status return values
 #define SCAN_OK 0
@@ -28,23 +29,26 @@ class scanner
 {
 private:
 	ftdi ft;
+	uint8_t scan_loop = 0;
 
 public:
 	scanner();
-	int connect(std::string serial_n);
-	int scan(int state);
-	int setReg(uint32_t addr, uint32_t data);
-	int setBlackLevel(uint32_t level);
-	int setGain(double gain);
-	int setScanSampleMode(uint32_t mode);
-	int setScanFrameRate(uint32_t rate);
-	int setScanEnable(uint32_t state);
-	int setLEDBrightness(double level);
-	int setMotorSpeed(uint32_t speed, uint32_t dir);
-	int setMotorEnable(uint32_t enable);
-	int init(std::string serial_n);
-	int getData(std::vector<unsigned char>* pData, uint32_t nBytes);
-	int getQueue(unsigned long int* nBytes);
+	int8_t connect(std::string serial_n);
+	void scanStart(std::function<void(std::vector<uint8_t>* pData)> lineCallBack);
+	void scanStop(void);
+	int8_t setReg(uint32_t addr, uint32_t data);
+	int8_t setBlackLevel(uint32_t level);
+	int8_t setGain(double gain);
+	int8_t setScanSampleMode(uint32_t mode);
+	int8_t setScanFrameRate(uint32_t rate);
+	int8_t setScanEnable(uint32_t state);
+	int8_t setLEDBrightness(double level);
+	int8_t setMotorSpeed(uint32_t speed, uint32_t dir);
+	int8_t setMotorEnable(uint32_t enable);
+	int8_t init(std::string serial_n);
+	int8_t getData(std::vector<unsigned char>* pData, uint32_t nBytes);
+	int8_t getQueue(uint32_t * nBytes);
+	void dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lineCallBack);
 	~scanner();
 };
 

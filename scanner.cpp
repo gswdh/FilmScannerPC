@@ -1,5 +1,7 @@
 #include "scanner.h"
 
+int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line, std::vector<uint8_t> * remainder);
+
 scanner::scanner()
 {
 
@@ -10,7 +12,7 @@ scanner::~scanner()
 	ft.disconnect();
 }
 
-int scanner::init(std::string serial_n)
+int8_t scanner::init(std::string serial_n)
 {
 	int scan_result = -1;
 
@@ -44,7 +46,7 @@ int scanner::init(std::string serial_n)
 	return scan_result;
 }
 
-int scanner::connect(std::string serial_n)
+int8_t scanner::connect(std::string serial_n)
 {
 	// Result
 	int ft_result = -1;
@@ -59,7 +61,7 @@ int scanner::connect(std::string serial_n)
 	return ft_result;
 }
 
-int scanner::setReg(uint32_t addr, uint32_t data)
+int8_t scanner::setReg(uint32_t addr, uint32_t data)
 {
 	// Setup the packet values
 	uint16_t gprg = 0;
@@ -76,22 +78,22 @@ int scanner::setReg(uint32_t addr, uint32_t data)
 	return ft_result;
 }
 
-int scanner::setScanSampleMode(uint32_t mode)
+int8_t scanner::setScanSampleMode(uint32_t mode)
 {
 	return this->setReg(SCAN_SUB_SAMPLE_ADDR, mode);
 }
 
-int scanner::setScanFrameRate(uint32_t rate)
+int8_t scanner::setScanFrameRate(uint32_t rate)
 {
 	return this->setReg(SCAN_FRAME_RATE_ADDR, rate);
 }
 
-int scanner::setScanEnable(uint32_t state)
+int8_t scanner::setScanEnable(uint32_t state)
 {
 	return this->setReg(SCAN_EN_ADDR, state);
 }
 
-int scanner::setLEDBrightness(double level)
+int8_t scanner::setLEDBrightness(double level)
 {
 	// Convert from a float
 	uint32_t pwm_level = 255 * level;
@@ -102,7 +104,7 @@ int scanner::setLEDBrightness(double level)
 	return this->setReg(LED_PWM_ADDR, pwm_level);
 }
 
-int scanner::setMotorSpeed(uint32_t speed, uint32_t dir)
+int8_t scanner::setMotorSpeed(uint32_t speed, uint32_t dir)
 {
 	int scan_result = -1;
 
@@ -112,17 +114,17 @@ int scanner::setMotorSpeed(uint32_t speed, uint32_t dir)
 	return scan_result;
 }
 
-int scanner::setMotorEnable(uint32_t enable)
+int8_t scanner::setMotorEnable(uint32_t enable)
 {
 	return this->setReg(MTR_EN_ADDR, enable);
 }
 
-int scanner::setBlackLevel(uint32_t level)
+int8_t scanner::setBlackLevel(uint32_t level)
 {
 	return this->setReg(DAC_OFFSET_ADDR, level);
 }
 
-int scanner::setGain(double gain)
+int8_t scanner::setGain(double gain)
 {
 	// Convert the gain for something for a reg
 	uint32_t gain_level = 65535 / gain;
@@ -134,7 +136,7 @@ int scanner::setGain(double gain)
 	return this->setReg(DAC_GAIN_ADDR, gain_level);
 }
 
-int scanner::getData(std::vector<unsigned char>* pData, uint32_t nBytes)
+int8_t scanner::getData(std::vector<unsigned char>* pData, uint32_t nBytes)
 {
 	int ft_result = -1;
 
@@ -145,7 +147,108 @@ int scanner::getData(std::vector<unsigned char>* pData, uint32_t nBytes)
 	return ft_result;
 }
 
-int scanner::getQueue(unsigned long int* nBytes)
+int8_t scanner::getQueue(uint32_t * nBytes)
 {
 	return ft.getQueLen(nBytes);
 }
+
+void scanner::scanStart(std::function<void(std::vector<uint8_t>* pData)> lineCallBack)
+{
+	// Set the loop to be enabled
+	this->scan_loop = 1;
+
+	// Thread the data processor
+	//this->dataProcessor(lineCallBack);
+}
+
+void scanner::scanStop(void)
+{
+	// Simply stop the loop and it'll quit
+	this->scan_loop = 0;
+}
+
+void scanner::dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lineCallBack)
+{
+	std::vector<uint8_t>* data_raw = new std::vector<uint8_t>;
+	std::vector<uint8_t>* remainder = new std::vector<uint8_t>;
+	std::vector<uint8_t>* line = new std::vector<uint8_t>;
+
+	uint32_t bytes = 0, time_out = 0;
+	int8_t result = -1;
+
+	// Continue with the loop until it's terminated
+	while(this->scan_loop == 1)
+	{
+		// Get the current number
+		this->getQueue(&bytes);
+
+		// If there's enough data
+		if(bytes > 2500 | time_out == 1000)
+		{
+			// Retrieve the data from the USB
+			this->getData(data_raw, bytes);
+
+			// Attach the data onto the remainder
+			data_raw->insert(data_raw->begin(), remainder->begin(), remainder->end());
+
+			// Process the line
+			LineGrabber(data_raw, line, remainder);
+
+			// Now call the callback function
+			lineCallBack(line);
+		}
+
+		// If there's an issue
+		if(result == -1)
+		{
+			std::cout << "ERROR" << std::endl;
+
+			// Exit the loop
+			this->scan_loop = 0;
+		}
+	}
+}
+
+int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line, std::vector<uint8_t> * remainder)
+{
+    // Get the length of the input data
+    uint64_t n_length = data->size();
+
+    // Make sure outputs are clean
+    line->clear();
+    remainder->clear();
+
+    // Go through the data pulled
+    for(uint64_t i = 0; i < n_length; i++)
+    {
+        // Hit an end of line character
+        if(data->at(i) == 255)
+        {
+            // If we have a complete (valid) line
+            if(i == 2047)
+            {
+                // Create the line
+                line->insert(line->begin(), data->begin(), data->begin()+i);
+
+                // Return the rest
+                remainder->insert(remainder->begin(), data->begin()+i+1, data->end());
+
+                // Return 0 for success
+                return 0;
+            }
+
+            // Return -1 for line error
+            else
+            {
+                // Return the rest
+                remainder->insert(remainder->begin(), data->begin()+i+1, data->end());
+
+                return -1;
+            }
+        }
+    }
+
+    // Return -1 for line error
+    return -1;
+}
+
