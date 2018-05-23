@@ -1,6 +1,6 @@
 #include "scanner.h"
 
-int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line, std::vector<uint8_t> * remainder);
+int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line);
 
 scanner::scanner()
 {
@@ -157,51 +157,70 @@ void scanner::scanStart(std::function<void(std::vector<uint8_t>* pData)> lineCal
 	// Set the loop to be enabled
 	this->scan_loop = 1;
 
+	// Start the scanning in the scanner
+	this->setScanEnable(1);
+
 	// Thread the data processor
-	//this->dataProcessor(lineCallBack);
+	this->dataProcessor(lineCallBack);
 }
 
 void scanner::scanStop(void)
 {
 	// Simply stop the loop and it'll quit
 	this->scan_loop = 0;
+
+	// Stop the scanning in the scanner
+	this->setScanEnable(0);
 }
 
 void scanner::dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lineCallBack)
 {
-	std::vector<uint8_t>* data_raw = new std::vector<uint8_t>;
-	std::vector<uint8_t>* remainder = new std::vector<uint8_t>;
+	std::vector<uint8_t>* data_new = new std::vector<uint8_t>;
+	std::vector<uint8_t>* data = new std::vector<uint8_t>;
 	std::vector<uint8_t>* line = new std::vector<uint8_t>;
 
-	uint32_t bytes = 0, time_out = 0;
+	uint32_t bytes = 0, time_out = 0, failed_lines = 0;
 	int8_t result = -1;
 
 	// Continue with the loop until it's terminated
 	while(this->scan_loop == 1)
 	{
-		// Get the current number
-		this->getQueue(&bytes);
-
 		// If there's enough data
-		if(bytes > 2500 | time_out == 1000)
+		if(data->size() > 2047)
 		{
-			// Retrieve the data from the USB
-			this->getData(data_raw, bytes);
-
-			// Attach the data onto the remainder
-			data_raw->insert(data_raw->begin(), remainder->begin(), remainder->end());
+			// Reset the timeout
+			time_out = 0;
 
 			// Process the line
-			LineGrabber(data_raw, line, remainder);
+			if(LineGrabber(data, line) == -1)
+			{
+				std::cout << failed_lines++ << std::endl;
+			}
 
 			// Now call the callback function
 			lineCallBack(line);
 		}
 
-		// If there's an issue
-		if(result == -1)
+		// Get some more data
+		else
 		{
-			std::cout << "ERROR" << std::endl;
+			// Get the current number
+			result = this->getQueue(&bytes);
+
+			// Read
+			result = this->getData(data_new, bytes);
+
+			// Attach the data onto the remainder
+			data->insert(data->begin(), data_new->begin(), data_new->end());
+
+			// Increment the time out
+			time_out++;
+		}
+
+		// If there's an issue
+		if(result == -1 | time_out == 10000000)
+		{
+			std::cout << "ERROR Result = " << int(result) << " Timeout = " << time_out << std::endl;
 
 			// Exit the loop
 			this->scan_loop = 0;
@@ -209,14 +228,13 @@ void scanner::dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lin
 	}
 }
 
-int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line, std::vector<uint8_t> * remainder)
+int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line)
 {
     // Get the length of the input data
     uint64_t n_length = data->size();
 
     // Make sure outputs are clean
     line->clear();
-    remainder->clear();
 
     // Go through the data pulled
     for(uint64_t i = 0; i < n_length; i++)
@@ -230,8 +248,8 @@ int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line, std
                 // Create the line
                 line->insert(line->begin(), data->begin(), data->begin()+i);
 
-                // Return the rest
-                remainder->insert(remainder->begin(), data->begin()+i+1, data->end());
+                // Remove the line elements from the raw data
+                data->erase(data->begin(), data->begin()+i+1);
 
                 // Return 0 for success
                 return 0;
@@ -240,12 +258,21 @@ int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line, std
             // Return -1 for line error
             else
             {
-                // Return the rest
-                remainder->insert(remainder->begin(), data->begin()+i+1, data->end());
+            	// Remove the line elements from the raw data
+            	data->erase(data->begin(), data->begin()+i+1);
 
                 return -1;
             }
         }
+
+        // There's no end of line
+        if(i == (n_length - 1))
+        {
+			// Remove the line elements from the raw data
+			data->erase(data->begin(), data->begin()+i);
+
+			return -1;
+		}
     }
 
     // Return -1 for line error
