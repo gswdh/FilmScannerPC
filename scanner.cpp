@@ -192,13 +192,13 @@ void scanner::dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lin
 			time_out = 0;
 
 			// Process the line
-			if(LineGrabber(data, line) == -1)
+			if(LineGrabber(data, line) == 0)
 			{
-				std::cout << failed_lines++ << std::endl;
+				// Now call the callback function
+				lineCallBack(line);
 			}
 
-			// Now call the callback function
-			lineCallBack(line);
+			else std::cout << failed_lines++ << std::endl;
 		}
 
 		// Get some more data
@@ -211,7 +211,7 @@ void scanner::dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lin
 			result = this->getData(data_new, bytes);
 
 			// Attach the data onto the remainder
-			data->insert(data->begin(), data_new->begin(), data_new->end());
+			data->insert(data->end(), data_new->begin(), data_new->end());
 
 			// Increment the time out
 			time_out++;
