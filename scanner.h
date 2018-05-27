@@ -29,7 +29,6 @@ class scanner
 {
 private:
 	ftdi ft;
-	uint8_t scan_loop = 0;
 
 public:
 	scanner();
@@ -47,9 +46,10 @@ public:
 	int8_t setMotorEnable(uint32_t enable);
 	int8_t init(std::string serial_n);
 	int8_t getData(std::vector<unsigned char>* pData, uint32_t nBytes);
-	int8_t getQueue(uint32_t * nBytes);
-	void dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lineCallBack);
+        int8_t getQueue(uint32_t * nBytes);
 	~scanner();
+
+        uint8_t scan_loop = 0;
 };
 
 

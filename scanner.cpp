@@ -1,6 +1,7 @@
 #include "scanner.h"
 
 int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line);
+void dataProcessor(scanner * scan, std::function<void(std::vector<uint8_t>* pData)> lineCallBack);
 
 scanner::scanner()
 {
@@ -160,20 +161,20 @@ void scanner::scanStart(std::function<void(std::vector<uint8_t>* pData)> lineCal
 	// Start the scanning in the scanner
 	this->setScanEnable(1);
 
-	// Thread the data processor
-	this->dataProcessor(lineCallBack);
+    // Thread the data processor
+    std::thread scanner_thread(dataProcessor, this, lineCallBack);
 }
 
 void scanner::scanStop(void)
 {
 	// Simply stop the loop and it'll quit
-	this->scan_loop = 0;
+    this->scan_loop = 0;
 
-	// Stop the scanning in the scanner
-	this->setScanEnable(0);
+    // Stop the scanning in the scanner
+    this->setScanEnable(0);
 }
 
-void scanner::dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lineCallBack)
+void dataProcessor(scanner * scan, std::function<void(std::vector<uint8_t>* pData)> lineCallBack)
 {
 	std::vector<uint8_t>* data_new = new std::vector<uint8_t>;
 	std::vector<uint8_t>* data = new std::vector<uint8_t>;
@@ -183,10 +184,10 @@ void scanner::dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lin
 	int8_t result = -1;
 
 	// Continue with the loop until it's terminated
-	while(this->scan_loop == 1)
+    while(scan->scan_loop == 1)
 	{
 		// If there's enough data
-		if(data->size() > 2047)
+        if(data->size() > 2047)
 		{
 			// Reset the timeout
 			time_out = 0;
@@ -205,10 +206,10 @@ void scanner::dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lin
 		else
 		{
 			// Get the current number
-			result = this->getQueue(&bytes);
+            result = scan->getQueue(&bytes);
 
 			// Read
-			result = this->getData(data_new, bytes);
+            result = scan->getData(data_new, bytes);
 
 			// Attach the data onto the remainder
 			data->insert(data->end(), data_new->begin(), data_new->end());
@@ -218,12 +219,12 @@ void scanner::dataProcessor(std::function<void(std::vector<uint8_t>* pData)> lin
 		}
 
 		// If there's an issue
-		if(result == -1 | time_out == 10000000)
+        if((result == -1) | (time_out == 10000000))
 		{
 			std::cout << "ERROR Result = " << int(result) << " Timeout = " << time_out << std::endl;
 
 			// Exit the loop
-			this->scan_loop = 0;
+            scan->scan_loop = 0;
 		}
 	}
 }
