@@ -45,16 +45,11 @@ void scannerCallBack(vector<unsigned char>* data)
 	if(lines_done == 3000)
 	{
 		run = 1;
-
 		cout << "Done" << endl;
 	}
 
 	else
 	{
-		//pFile = fopen("image.pgm", "a");
-		//fwrite(image_data, 1, image_data->size()*sizeof(uint8_t), pFile);
-		//fclose(pFile);
-
 		lines_done++;
 	}
 
