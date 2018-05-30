@@ -5,8 +5,7 @@
 #include <QFuture>
 #include <QtConcurrent/QtConcurrentRun>
 
-#include "scanner.h"
-#include <vector>
+#include "scannerWorker.h"
 #include <iostream>
 
 namespace Ui {
@@ -23,8 +22,10 @@ public:
 
 private slots:
     void on_b_start_clicked();
-
     void on_b_stop_clicked();
+
+signals:
+    void stop_Clicked();
 
 private:
     Ui::MainWindow *ui;

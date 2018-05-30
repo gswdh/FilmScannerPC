@@ -1,18 +1,20 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-scanner scan;
-
-// Scanner callback, lines will be received here
-void scannerCallBack(std::vector<unsigned char>* data)
-{
-    std::cout << "Line recieved" << std::endl;
-}
-
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     // Setup and start the scanner
-    scan.init("GS1FPQH5");
+    //scan.init("GS1FPQH5");
+
+    QThread* scannerThread = new QThread;
+    scannerWorker* worker = new scannerWorker();
+
+    worker->moveToThread(scannerThread);
+
+    connect(scannerThread, SIGNAL(started()), worker, SLOT(lineWorker()));
+    connect(this, SIGNAL(stop_Clicked()), worker, SLOT(loopStop()));
+
+    scannerThread->start();
 
     ui->setupUi(this);
 }
@@ -24,10 +26,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_b_start_clicked()
 {
-    scan.scanStart(scannerCallBack);
+    //scan.scanStart(scannerCallBack);
+
 }
 
 void MainWindow::on_b_stop_clicked()
 {
-    scan.scanStop();
+    //scan.scanStop();
+    emit stop_Clicked();
 }

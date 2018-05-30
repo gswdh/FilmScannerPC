@@ -25,18 +25,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += \
         C:\Users\George\Documents\FilmScannerPC\FTDIWrapper\inc \
         C:\Users\George\Documents\FilmScannerPC \
-        C:\Users\George\Documents\FilmScannerPC\GSBus\software
+        C:\Users\George\Documents\FilmScannerPC\GSBus\software \
 
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
         C:\Users\George\Documents\FilmScannerPC\FTDIWrapper\src\ftdi.cpp \
         C:\Users\George\Documents\FilmScannerPC\GSBus\software\gsbus.cpp \
-        C:\Users\George\Documents\FilmScannerPC\scanner.cpp
+        C:\Users\George\Documents\FilmScannerPC\scanner.cpp \
+        C:\Users\George\Documents\FilmScannerPC\scannerWorker.cpp
 
 
 HEADERS += \
-        mainwindow.h\
+        mainwindow.h \
+        C:\Users\George\Documents\FilmScannerPC\scannerWorker.h
 
 FORMS += \
         mainwindow.ui
