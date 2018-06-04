@@ -21,8 +21,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[5];
-    char stringdata0[62];
+    QByteArrayData data[9];
+    char stringdata0[102];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -32,14 +32,19 @@ struct qt_meta_stringdata_MainWindow_t {
 static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
     {
 QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
-QT_MOC_LITERAL(1, 11, 12), // "stop_Clicked"
-QT_MOC_LITERAL(2, 24, 0), // ""
-QT_MOC_LITERAL(3, 25, 18), // "on_b_start_clicked"
-QT_MOC_LITERAL(4, 44, 17) // "on_b_stop_clicked"
+QT_MOC_LITERAL(1, 11, 13), // "start_Clicked"
+QT_MOC_LITERAL(2, 25, 0), // ""
+QT_MOC_LITERAL(3, 26, 12), // "stop_Clicked"
+QT_MOC_LITERAL(4, 39, 18), // "on_b_start_clicked"
+QT_MOC_LITERAL(5, 58, 17), // "on_b_stop_clicked"
+QT_MOC_LITERAL(6, 76, 11), // "receiveLine"
+QT_MOC_LITERAL(7, 88, 8), // "uint8_t*"
+QT_MOC_LITERAL(8, 97, 4) // "line"
 
     },
-    "MainWindow\0stop_Clicked\0\0on_b_start_clicked\0"
-    "on_b_stop_clicked"
+    "MainWindow\0start_Clicked\0\0stop_Clicked\0"
+    "on_b_start_clicked\0on_b_stop_clicked\0"
+    "receiveLine\0uint8_t*\0line"
 };
 #undef QT_MOC_LITERAL
 
@@ -49,26 +54,30 @@ static const uint qt_meta_data_MainWindow[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       3,   14, // methods
+       5,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       1,       // signalCount
+       2,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    0,   29,    2, 0x06 /* Public */,
+       1,    0,   39,    2, 0x06 /* Public */,
+       3,    0,   40,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       3,    0,   30,    2, 0x08 /* Private */,
-       4,    0,   31,    2, 0x08 /* Private */,
+       4,    0,   41,    2, 0x08 /* Private */,
+       5,    0,   42,    2, 0x08 /* Private */,
+       6,    1,   43,    2, 0x08 /* Private */,
 
  // signals: parameters
+    QMetaType::Void,
     QMetaType::Void,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 7,    8,
 
        0        // eod
 };
@@ -79,9 +88,11 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         MainWindow *_t = static_cast<MainWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->stop_Clicked(); break;
-        case 1: _t->on_b_start_clicked(); break;
-        case 2: _t->on_b_stop_clicked(); break;
+        case 0: _t->start_Clicked(); break;
+        case 1: _t->stop_Clicked(); break;
+        case 2: _t->on_b_start_clicked(); break;
+        case 3: _t->on_b_stop_clicked(); break;
+        case 4: _t->receiveLine((*reinterpret_cast< uint8_t*(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::IndexOfMethod) {
@@ -89,13 +100,19 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         void **func = reinterpret_cast<void **>(_a[1]);
         {
             typedef void (MainWindow::*_t)();
-            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MainWindow::stop_Clicked)) {
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MainWindow::start_Clicked)) {
                 *result = 0;
                 return;
             }
         }
+        {
+            typedef void (MainWindow::*_t)();
+            if (*reinterpret_cast<_t *>(func) == static_cast<_t>(&MainWindow::stop_Clicked)) {
+                *result = 1;
+                return;
+            }
+        }
     }
-    Q_UNUSED(_a);
 }
 
 const QMetaObject MainWindow::staticMetaObject = {
@@ -123,21 +140,27 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 3)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 3;
+        _id -= 5;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 3)
+        if (_id < 5)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 3;
+        _id -= 5;
     }
     return _id;
 }
 
 // SIGNAL 0
-void MainWindow::stop_Clicked()
+void MainWindow::start_Clicked()
 {
     QMetaObject::activate(this, &staticMetaObject, 0, nullptr);
+}
+
+// SIGNAL 1
+void MainWindow::stop_Clicked()
+{
+    QMetaObject::activate(this, &staticMetaObject, 1, nullptr);
 }
 QT_WARNING_POP
 QT_END_MOC_NAMESPACE

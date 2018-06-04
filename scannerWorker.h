@@ -3,7 +3,9 @@
 #include <QThread>
 #include <QCoreApplication>
 
+#include "scanner.h"
 #include <iostream>
+#include <fstream>
 
 class scannerWorker : public QObject
 {
@@ -17,7 +19,11 @@ public slots:
     void lineWorker();
     void loopStop();
 
+signals:
+    void lineDone(uint8_t * pline);
+
 private:
     uint8_t loop_run = 0;
+    scanner scan;
 
 };

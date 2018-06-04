@@ -1,8 +1,5 @@
 #include "scanner.h"
 
-int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line);
-void dataProcessor(scanner * scan, std::function<void(std::vector<uint8_t>* pData)> lineCallBack);
-
 scanner::scanner()
 {
 
@@ -41,8 +38,6 @@ int8_t scanner::init(std::string serial_n)
 	// Full frame rate
 	scan_result = this->setScanFrameRate(0);
 
-
-
 	// Return result
 	return scan_result;
 }
@@ -73,10 +68,11 @@ int8_t scanner::setReg(uint32_t addr, uint32_t data)
 	nBytes = GSBusMakePacket(addr, data, gprg, (uint8_t*)packet);
 
 	// Send the new packet
-	int ft_result = ft.transmit(packet, nBytes);
+    int ft_result = ft.transmit(packet, nBytes);
 
 	// Return the error
-	return ft_result;
+    return ft_result;
+    return 0;
 }
 
 int8_t scanner::setScanSampleMode(uint32_t mode)
@@ -137,12 +133,12 @@ int8_t scanner::setGain(double gain)
 	return this->setReg(DAC_GAIN_ADDR, gain_level);
 }
 
-int8_t scanner::getData(std::vector<unsigned char>* pData, uint32_t nBytes)
+int8_t scanner::getData(uint8_t * pData, uint32_t nBytes)
 {
 	int ft_result = -1;
 
 	// Now get the data
-	ft_result = ft.receive(pData, nBytes);
+    ft_result = ft.receive(pData, nBytes);
 
 	// Result
 	return ft_result;
@@ -153,16 +149,13 @@ int8_t scanner::getQueue(uint32_t * nBytes)
 	return ft.getQueLen(nBytes);
 }
 
-void scanner::scanStart(std::function<void(std::vector<uint8_t>* pData)> lineCallBack)
+void scanner::scanStart(void)
 {
 	// Set the loop to be enabled
 	this->scan_loop = 1;
 
 	// Start the scanning in the scanner
 	this->setScanEnable(1);
-
-    // Thread the data processor
-    std::thread scanner_thread(dataProcessor, this, lineCallBack);
 }
 
 void scanner::scanStop(void)
@@ -174,83 +167,62 @@ void scanner::scanStop(void)
     this->setScanEnable(0);
 }
 
-void dataProcessor(scanner * scan, std::function<void(std::vector<uint8_t>* pData)> lineCallBack)
+int8_t scanner::getLine(uint8_t * line, uint32_t * line_len)
 {
-	std::vector<uint8_t>* data_new = new std::vector<uint8_t>;
-	std::vector<uint8_t>* data = new std::vector<uint8_t>;
-	std::vector<uint8_t>* line = new std::vector<uint8_t>;
+    uint8_t data_new[65536];
 
-	uint32_t bytes = 0, time_out = 0, failed_lines = 0;
-	int8_t result = -1;
+    uint32_t bytes = 0;
+    int8_t result = -1;
 
-	// Continue with the loop until it's terminated
-    while(scan->scan_loop == 1)
-	{
-		// If there's enough data
-        if(data->size() > 2047)
-		{
-			// Reset the timeout
-			time_out = 0;
+        // Check if there's enough data, if not...
+        if(this->data_len < 2047)
+        {
+            // Get the current number
+            result = this->getQueue(&bytes);
 
-			// Process the line
-			if(LineGrabber(data, line) == 0)
-			{
-				// Now call the callback function
-				lineCallBack(line);
-			}
+            // Read
+            result = this->getData(data_new, bytes);
 
-			else std::cout << failed_lines++ << std::endl;
-		}
+            // Attach the data onto the remainder
+            memcpy(this->data + data_len, data_new, bytes);
+            this->data_len += bytes;
+        }
 
-		// Get some more data
-		else
-		{
-			// Get the current number
-            result = scan->getQueue(&bytes);
+        // Now we have enough data
+        else
+        {
+            // Process the line
+            result = this->LineGrabber(line);
+        }
 
-			// Read
-            result = scan->getData(data_new, bytes);
+        // If there's an issue
+        if(result == -1)
+        {
+            std::cout << "ERROR Result = " << int(result) << std::endl;
+        }
 
-			// Attach the data onto the remainder
-			data->insert(data->end(), data_new->begin(), data_new->end());
-
-			// Increment the time out
-			time_out++;
-		}
-
-		// If there's an issue
-        if((result == -1) | (time_out == 10000000))
-		{
-			std::cout << "ERROR Result = " << int(result) << " Timeout = " << time_out << std::endl;
-
-			// Exit the loop
-            scan->scan_loop = 0;
-		}
-	}
+        // Else all good
+        return 0;
 }
 
-int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line)
+
+int8_t scanner::LineGrabber(uint8_t * line)
 {
-    // Get the length of the input data
-    uint64_t n_length = data->size();
-
-    // Make sure outputs are clean
-    line->clear();
-
     // Go through the data pulled
-    for(uint64_t i = 0; i < n_length; i++)
+    for(uint64_t i = 0; i < this->data_len; i++)
     {
         // Hit an end of line character
-        if(data->at(i) == 255)
+        if(this->data[i] == 255)
         {
             // If we have a complete (valid) line
             if(i == 2047)
             {
                 // Create the line
-                line->insert(line->begin(), data->begin(), data->begin()+i);
+                memcpy(line, this->data, i);
 
-                // Remove the line elements from the raw data
-                data->erase(data->begin(), data->begin()+i+1);
+                // Remove the line elements from the raw data by shifting them
+                memmove(this->data, this->data + i+1, this->data_len - (i + 1));
+                this->data_len -= (i + 1);
 
                 // Return 0 for success
                 return 0;
@@ -260,17 +232,18 @@ int8_t LineGrabber(std::vector<uint8_t> * data, std::vector<uint8_t> * line)
             else
             {
             	// Remove the line elements from the raw data
-            	data->erase(data->begin(), data->begin()+i+1);
+                memmove(this->data, this->data + i+1,this->data_len - (i + 1));
+                this->data_len -= (i + 1);
 
                 return -1;
             }
         }
 
         // There's no end of line
-        if(i == (n_length - 1))
+        if(i == (this->data_len - 1))
         {
-			// Remove the line elements from the raw data
-			data->erase(data->begin(), data->begin()+i);
+            // Remove the line elements from the raw data
+            this->data_len = 0;
 
 			return -1;
 		}

@@ -29,13 +29,15 @@ class scanner
 {
 private:
 	ftdi ft;
+        uint8_t data[2000000];
+        uint32_t data_len = 0;
 
 public:
 	scanner();
 	int8_t connect(std::string serial_n);
-	void scanStart(std::function<void(std::vector<uint8_t>* pData)> lineCallBack);
+        void scanStart(void);
 	void scanStop(void);
-	int8_t setReg(uint32_t addr, uint32_t data);
+        int8_t setReg(uint32_t addr, uint32_t data);
 	int8_t setBlackLevel(uint32_t level);
 	int8_t setGain(double gain);
 	int8_t setScanSampleMode(uint32_t mode);
@@ -44,9 +46,11 @@ public:
 	int8_t setLEDBrightness(double level);
 	int8_t setMotorSpeed(uint32_t speed, uint32_t dir);
 	int8_t setMotorEnable(uint32_t enable);
-	int8_t init(std::string serial_n);
-	int8_t getData(std::vector<unsigned char>* pData, uint32_t nBytes);
+        int8_t init(std::string serial_n);
+        int8_t getData(uint8_t * pData, uint32_t nBytes);
         int8_t getQueue(uint32_t * nBytes);
+        int8_t getLine(uint8_t * line, uint32_t * line_len);
+        int8_t LineGrabber(uint8_t * line);
 	~scanner();
 
         uint8_t scan_loop = 0;

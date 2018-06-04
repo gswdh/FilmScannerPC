@@ -7,6 +7,7 @@
 
 #include "scannerWorker.h"
 #include <iostream>
+#include <fstream>
 
 namespace Ui {
 class MainWindow;
@@ -23,8 +24,10 @@ public:
 private slots:
     void on_b_start_clicked();
     void on_b_stop_clicked();
+    void receiveLine(uint8_t * line);
 
 signals:
+    void start_Clicked();
     void stop_Clicked();
 
 private:

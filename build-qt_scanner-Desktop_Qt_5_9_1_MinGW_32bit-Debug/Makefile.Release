@@ -237,6 +237,12 @@ release/moc_mainwindow.cpp: C:/Qt/5.9.1/mingw53_32/include/QtWidgets/QMainWindow
 		C:/Qt/5.9.1/mingw53_32/include/QtConcurrent/qtconcurrentstoredfunctioncall.h \
 		../scannerWorker.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/QObject \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QTime \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qdatetime.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QThread \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QCoreApplication \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qcoreapplication.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qeventloop.h \
 		../qt_scanner/mainwindow.h \
 		release/moc_predefs.h \
 		C:/Qt/5.9.1/mingw53_32/bin/moc.exe
@@ -289,6 +295,15 @@ release/moc_scannerWorker.cpp: C:/Qt/5.9.1/mingw53_32/include/QtCore/QObject \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/qvarlengtharray.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/qcontainerfwd.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/qobject_impl.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QTime \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qdatetime.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qshareddata.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qhash.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QThread \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qthread.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QCoreApplication \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qcoreapplication.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qeventloop.h \
 		../scannerWorker.h \
 		release/moc_predefs.h \
 		C:/Qt/5.9.1/mingw53_32/bin/moc.exe
@@ -435,10 +450,14 @@ release/main.o: ../qt_scanner/main.cpp ../qt_scanner/mainwindow.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtConcurrent/qtconcurrentstoredfunctioncall.h \
 		../scannerWorker.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/QObject \
-		C:/Qt/5.9.1/mingw53_32/include/QtWidgets/QApplication \
-		C:/Qt/5.9.1/mingw53_32/include/QtWidgets/qapplication.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QTime \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qdatetime.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QThread \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QCoreApplication \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/qcoreapplication.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/qeventloop.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtWidgets/QApplication \
+		C:/Qt/5.9.1/mingw53_32/include/QtWidgets/qapplication.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtWidgets/qdesktopwidget.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtGui/qguiapplication.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtGui/qinputmethod.h
@@ -564,6 +583,12 @@ release/mainwindow.o: ../qt_scanner/mainwindow.cpp ../qt_scanner/mainwindow.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtConcurrent/qtconcurrentstoredfunctioncall.h \
 		../scannerWorker.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/QObject \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QTime \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qdatetime.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QThread \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QCoreApplication \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qcoreapplication.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qeventloop.h \
 		ui_mainwindow.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/QVariant \
 		C:/Qt/5.9.1/mingw53_32/include/QtWidgets/QAction \
@@ -571,8 +596,6 @@ release/mainwindow.o: ../qt_scanner/mainwindow.cpp ../qt_scanner/mainwindow.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtWidgets/qactiongroup.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtWidgets/QApplication \
 		C:/Qt/5.9.1/mingw53_32/include/QtWidgets/qapplication.h \
-		C:/Qt/5.9.1/mingw53_32/include/QtCore/qcoreapplication.h \
-		C:/Qt/5.9.1/mingw53_32/include/QtCore/qeventloop.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtWidgets/qdesktopwidget.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtGui/qguiapplication.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtGui/qinputmethod.h \
@@ -668,7 +691,16 @@ release/scannerWorker.o: ../scannerWorker.cpp ../scannerWorker.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/qmetatype.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/qvarlengtharray.h \
 		C:/Qt/5.9.1/mingw53_32/include/QtCore/qcontainerfwd.h \
-		C:/Qt/5.9.1/mingw53_32/include/QtCore/qobject_impl.h
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qobject_impl.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QTime \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qdatetime.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qshareddata.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qhash.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QThread \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qthread.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/QCoreApplication \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qcoreapplication.h \
+		C:/Qt/5.9.1/mingw53_32/include/QtCore/qeventloop.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o release/scannerWorker.o ../scannerWorker.cpp
 
 release/moc_mainwindow.o: release/moc_mainwindow.cpp 
