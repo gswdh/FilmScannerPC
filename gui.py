@@ -2,11 +2,15 @@ import sys
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QApplication, QLineEdit, QSlider, QComboBox, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton
 from PyQt5.QtGui import QIcon, QPixmap
+import scanner
 
 class App(QWidget):
 
 	def __init__(self):
 		super().__init__()
+
+		# Create ourselves a scanner object
+		self.scnr = scanner.Scanner()
 		
 		# Window init
 		self.setWindowTitle('GSWDH Film Scanner Controller')
@@ -17,7 +21,6 @@ class App(QWidget):
 		# A place to put the scanned image 
 		self.l_image_display = QLabel(self)
 		self.l_image_display.setStyleSheet("background-color: lightgreen")
-
 
 		# Refresh button
 		self.b_refresh = QPushButton('Refresh')
@@ -30,6 +33,7 @@ class App(QWidget):
 
 		# Scan parameters
 		self.c_devices = QComboBox(self)
+		self.b_refresh_clicked()
 		self.t_scan_length = QLineEdit(self)
 		
 		# Setup the gain slider
@@ -60,6 +64,7 @@ class App(QWidget):
 		# Layout
 		vbox = QVBoxLayout()
 		vbox.setAlignment(QtCore.Qt.AlignTop)
+		vbox.addWidget(QLabel('Scanner'))
 		vbox.addWidget(self.b_refresh)
 		vbox.addWidget(self.c_devices)
 		vbox.addWidget(QLabel('Scan Length (frames)'))
@@ -83,19 +88,27 @@ class App(QWidget):
 		self.show()
 
 	def b_refresh_clicked(self):
-		print('Need to get some info from the FTDI.')
+		devices = self.scnr.list_devices()
+		self.c_devices.clear()
+		for device in devices:
+			self.c_devices.addItem(device)
 
 	def b_start_stop_clicked(self):
 		if self.scanning:
-			self.scanning = False
 			print('Stopping scanning...')
+
 			# Do some things here.
+			self.scanning = False
 			self.b_start_stop.setText('Start')
+			self.scnr.stop()
+
 		else:
-			self.scanning = True
 			print('Starting scanning...')
+			
 			# Do some things here.
+			self.scanning = True
 			self.b_start_stop.setText('Stop')
+			self.scnr.start(str(self.c_devices.currentText()))
 
 	def s_gain_changed(self):
 		self.l_gain.setText(f'Gain = {self.s_gain.value()}')
