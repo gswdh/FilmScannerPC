@@ -68,8 +68,8 @@ class App(QWidget):
 		# Move button
 		self.b_move = QPushButton('Move')
 		self.b_move.clicked.connect(self.b_move_clicked)
-		self.moving = False
-
+		self.l_move_feedback = QLabel(" ")
+		
 		# Scan parameters
 		self.t_move_angle = QLineEdit(self)
 
@@ -96,6 +96,7 @@ class App(QWidget):
 		vbox.addWidget(QLabel('Angle to move (°)'))
 		vbox.addWidget(self.t_move_angle)
 		vbox.addWidget(self.b_move)
+		vbox.addWidget(self.l_move_feedback)
 
 		self.setLayout(vbox)
 
@@ -110,15 +111,22 @@ class App(QWidget):
 	def b_move_clicked(self):
 
 		if self.rig_moving:
+			self.l_move_feedback.setText("Rig is already moving.")
 			return
-
 		try:
 			angle = float(self.t_move_angle.text())
 		except:
-			pass
+			self.l_move_feedback.setText(f'Input angle is not valid.')
 		else:
-			print(f'Gonna move {angle}°')
+			self.l_move_feedback.setText(f'Going to move {angle}°.')
 
+		self.move_timer = QTimer(self)
+		self.move_timer.timeout.connect(self.l_move_timer)
+		self.move_timer.start(3000)
+
+	def l_move_timer(self):
+		self.l_move_feedback.setText('')
+		self.move_timer.stop()
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
