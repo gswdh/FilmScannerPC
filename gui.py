@@ -1,123 +1,126 @@
 import sys
 from PyQt5 import QtCore
+from PyQt5.QtCore import QTimer
 from PyQt5.QtWidgets import QApplication, QLineEdit, QSlider, QComboBox, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton
 from PyQt5.QtGui import QIcon, QPixmap
-import scanner
+import paho.mqtt.client as mqtt
+import json
 
 class App(QWidget):
+
+	json_packet = ""
+
+	def mqtt_on_connect(self, client, userdata, flags, rc):
+	    client.subscribe("angle_rig/stream")
+
+	def mqtt_on_message(self, client, userdata, msg):
+	    try:
+	    	self.json_packet = json.loads(msg.payload)
+	    except:
+	    	pass
+
+	def timer_update_data(self):
+		try:
+			self.l_cont_tick.setText(str(round(self.json_packet["tick"] / 1e6, 3)))
+			self.l_moving.setText(str(self.json_packet["moving"]))
+			self.l_sen_tick.setText(str(round(self.json_packet["dg"]["tick"] / 1e3, 3)))
+			self.l_x_angle.setText(str(round(self.json_packet["dg"]["g_x"], 3)))
+			self.l_y_angle.setText(str(round(self.json_packet["dg"]["g_y"], 3)))
+			self.l_z_angle.setText(str(round(self.json_packet["dg"]["g_y"], 3)))
+			self.l_temp.setText(str(round(self.json_packet["dg"]["temp"], 3)))
+			self.l_pres_angle.setText(str(round(self.json_packet["dg"]["angle"], 3)))
+		except:
+			pass
 
 	def __init__(self):
 		super().__init__()
 
-		# Create ourselves a scanner object
-		self.scnr = scanner.Scanner()
-		
+		# MQTT
+		self.client = mqtt.Client()
+		self.client.on_connect = self.mqtt_on_connect
+		self.client.on_message = self.mqtt_on_message
+		self.client.username_pw_set("jtm", password="")
+		self.client.connect("mb.jackthemaker.co", 1883, 60)
+		self.client.loop_start()
+
 		# Window init
-		self.setWindowTitle('GSWDH Film Scanner Controller')
-		self.setGeometry(10, 10, 1200, 600)
+		self.setWindowTitle('Zone OS Angle Rig Controller')
+		self.setGeometry(10, 10, 400, 600)
 
 		# GUI init
 
-		# A place to put the scanned image 
-		self.l_image_display = QLabel(self)
-		self.l_image_display.setStyleSheet("background-color: lightgreen")
-
-		# Refresh button
-		self.b_refresh = QPushButton('Refresh')
-		self.b_refresh.clicked.connect(self.b_refresh_clicked)
-
+		# Rig status
+		self.l_cont_tick = QLabel(" ")
+		self.l_moving = QLabel(" ")
+		self.l_sen_tick = QLabel(" ")
+		self.l_x_angle = QLabel(" ")
+		self.l_y_angle = QLabel(" ")
+		self.l_z_angle = QLabel(" ")
+		self.l_temp = QLabel(" ")
+		self.l_pres_angle = QLabel(" ")
+		
 		# Start stop button
-		self.b_start_stop = QPushButton('Start')
-		self.b_start_stop.clicked.connect(self.b_start_stop_clicked)
-		self.scanning = False
+		self.b_move = QPushButton('Move')
+		self.b_move.clicked.connect(self.b_start_stop_clicked)
+		self.moving = False
 
 		# Scan parameters
-		self.c_devices = QComboBox(self)
-		self.b_refresh_clicked()
-		self.t_scan_length = QLineEdit(self)
-		
-		# Setup the gain slider
-		self.s_gain = QSlider(QtCore.Qt.Horizontal)
-		self.s_gain.setRange(1, 10)
-		self.s_gain.setSingleStep(1)
-		self.s_gain.valueChanged.connect(self.s_gain_changed)
-		self.l_gain = QLabel('Gain')
-		self.s_gain_changed()
-
-		# Setup the offset slider
-		self.s_offset = QSlider(QtCore.Qt.Horizontal)
-		self.s_offset.setRange(0, 100)
-		self.s_offset.setSingleStep(1)
-		self.s_offset.valueChanged.connect(self.s_offset_changed)
-		self.l_offset = QLabel('Offset (black level)')
-		self.s_offset_changed()
-
-		# Setup the brightness slider
-		self.s_brightness = QSlider(QtCore.Qt.Horizontal)
-		self.s_brightness.setRange(0, 100)
-		self.s_brightness.setSingleStep(1)
-		self.s_brightness.setValue(100)
-		self.s_brightness.valueChanged.connect(self.s_brightness_changed)		
-		self.l_brightness = QLabel('LED Brightness')
-		self.s_brightness_changed()
+		self.t_move_angle = QLineEdit(self)
 
 		# Layout
 		vbox = QVBoxLayout()
 		vbox.setAlignment(QtCore.Qt.AlignTop)
-		vbox.addWidget(QLabel('Scanner'))
-		vbox.addWidget(self.b_refresh)
-		vbox.addWidget(self.c_devices)
-		vbox.addWidget(QLabel('Scan Length (frames)'))
-		vbox.addWidget(self.t_scan_length)
-		vbox.addWidget(self.b_start_stop)
-		vbox.addWidget(self.l_gain)
-		vbox.addWidget(self.s_gain)
-		vbox.addWidget(self.l_offset)
-		vbox.addWidget(self.s_offset)
-		vbox.addWidget(self.l_brightness)
-		vbox.addWidget(self.s_brightness)
+		vbox.addWidget(QLabel('Angle Rig Control'))
+		vbox.addWidget(QLabel('Controller tick (s)'))
+		vbox.addWidget(self.l_cont_tick)
+		vbox.addWidget(QLabel('Rig moving (bool)'))
+		vbox.addWidget(self.l_moving)
+		vbox.addWidget(QLabel('Sensor Tick (s)'))
+		vbox.addWidget(self.l_sen_tick)
+		vbox.addWidget(QLabel('ADXL Angle X (°)'))
+		vbox.addWidget(self.l_x_angle)
+		vbox.addWidget(QLabel('ADXL Angle Y (°)'))
+		vbox.addWidget(self.l_y_angle)
+		vbox.addWidget(QLabel('ADXL Angle Z (°)'))
+		vbox.addWidget(self.l_z_angle)
+		vbox.addWidget(QLabel('ADXL Temperature (°)'))
+		vbox.addWidget(self.l_temp)
+		vbox.addWidget(QLabel('Electrolytic Angle (°)'))
+		vbox.addWidget(self.l_pres_angle)
+		vbox.addWidget(QLabel('Angle to move (°)'))
+		vbox.addWidget(self.t_move_angle)
+		vbox.addWidget(self.b_move)
 
-		hbox = QHBoxLayout()
-		hbox.addWidget(self.l_image_display, 4)
-		hbox.addLayout(vbox, 1)
 
-		self.setLayout(hbox)
+		self.setLayout(vbox)
 
-	
+
+		# Timer for data update
+		self.timer = QTimer(self)
+		self.timer.timeout.connect(self.timer_update_data)
+		self.timer.start(100)
+
+
 		# Show
 		self.show()
 
 	def b_refresh_clicked(self):
-		devices = self.scnr.list_devices()
-		self.c_devices.clear()
-		for device in devices:
-			self.c_devices.addItem(device)
+		return
 
 	def b_start_stop_clicked(self):
-		if self.scanning:
-			print('Stopping scanning...')
-
-			# Do some things here.
-			self.scanning = False
-			self.b_start_stop.setText('Start')
-			self.scnr.stop()
-
-		else:
-			print('Starting scanning...')
-			
-			# Do some things here.
-			self.scanning = True
-			self.b_start_stop.setText('Stop')
-			self.scnr.start(str(self.c_devices.currentText()))
+		return
 
 	def s_gain_changed(self):
-		self.l_gain.setText(f'Gain = {self.s_gain.value()}')
+		#self.l_gain.setText(f'Gain = {self.s_gain.value()}')
+		return
 	
 	def s_offset_changed(self):
-		self.l_offset.setText(f'Offset (black level) = {self.s_offset.value()} %')
+		#self.l_offset.setText(f'Offset (black level) = {self.s_offset.value()} %')
+		return
 	
 	def s_brightness_changed(self):
-		self.l_brightness.setText(f'LED Brightness = {self.s_brightness.value()} %')
+		#self.l_brightness.setText(f'LED Brightness = {self.s_brightness.value()} %')
+		return
 	
 
 
