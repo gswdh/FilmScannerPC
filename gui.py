@@ -51,7 +51,8 @@ class App(QWidget):
 
 		# Window init
 		self.setWindowTitle('Zone OS Angle Rig Controller')
-		self.setGeometry(10, 10, 400, 600)
+		self.setGeometry(10, 10, 250, 300)
+		self.setFixedSize(250, 550)
 
 		# GUI init
 
@@ -119,6 +120,11 @@ class App(QWidget):
 			self.l_move_feedback.setText(f'Input angle is not valid.')
 		else:
 			self.l_move_feedback.setText(f'Going to move {angle}°.')
+
+		try:
+			self.move_timer.stop()
+		except:
+			pass
 
 		self.move_timer = QTimer(self)
 		self.move_timer.timeout.connect(self.l_move_timer)
