@@ -9,6 +9,7 @@ import json
 class App(QWidget):
 
 	json_packet = ""
+	rig_moving = False
 
 	def mqtt_on_connect(self, client, userdata, flags, rc):
 	    client.subscribe("angle_rig/stream")
@@ -29,6 +30,11 @@ class App(QWidget):
 			self.l_z_angle.setText(str(round(self.json_packet["dg"]["g_y"], 3)))
 			self.l_temp.setText(str(round(self.json_packet["dg"]["temp"], 3)))
 			self.l_pres_angle.setText(str(round(self.json_packet["dg"]["angle"], 3)))
+
+			if "false" in str(self.json_packet["moving"]):
+				rig_moving = False
+			else:
+				rig_moving = True
 		except:
 			pass
 
@@ -39,7 +45,7 @@ class App(QWidget):
 		self.client = mqtt.Client()
 		self.client.on_connect = self.mqtt_on_connect
 		self.client.on_message = self.mqtt_on_message
-		self.client.username_pw_set("jtm", password="")
+		self.client.username_pw_set("jtm", password="rbjtm0805")
 		self.client.connect("mb.jackthemaker.co", 1883, 60)
 		self.client.loop_start()
 
@@ -59,9 +65,9 @@ class App(QWidget):
 		self.l_temp = QLabel(" ")
 		self.l_pres_angle = QLabel(" ")
 		
-		# Start stop button
+		# Move button
 		self.b_move = QPushButton('Move')
-		self.b_move.clicked.connect(self.b_start_stop_clicked)
+		self.b_move.clicked.connect(self.b_move_clicked)
 		self.moving = False
 
 		# Scan parameters
@@ -91,40 +97,28 @@ class App(QWidget):
 		vbox.addWidget(self.t_move_angle)
 		vbox.addWidget(self.b_move)
 
-
 		self.setLayout(vbox)
-
 
 		# Timer for data update
 		self.timer = QTimer(self)
 		self.timer.timeout.connect(self.timer_update_data)
-		self.timer.start(100)
-
+		self.timer.start(20)
 
 		# Show
 		self.show()
 
-	def b_refresh_clicked(self):
-		return
+	def b_move_clicked(self):
 
-	def b_start_stop_clicked(self):
-		return
+		if self.rig_moving:
+			return
 
-	def s_gain_changed(self):
-		#self.l_gain.setText(f'Gain = {self.s_gain.value()}')
-		return
-	
-	def s_offset_changed(self):
-		#self.l_offset.setText(f'Offset (black level) = {self.s_offset.value()} %')
-		return
-	
-	def s_brightness_changed(self):
-		#self.l_brightness.setText(f'LED Brightness = {self.s_brightness.value()} %')
-		return
-	
+		try:
+			angle = float(self.t_move_angle.text())
+		except:
+			pass
+		else:
+			print(f'Gonna move {angle}°')
 
-
-		
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
