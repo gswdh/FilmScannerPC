@@ -52,7 +52,7 @@ class App(QWidget):
 		# Window init
 		self.setWindowTitle('Zone OS Angle Rig Controller')
 		self.setGeometry(10, 10, 250, 300)
-		self.setFixedSize(250, 550)
+		self.setFixedSize(300, 700)
 
 		# GUI init
 
@@ -67,8 +67,12 @@ class App(QWidget):
 		self.l_pres_angle = QLabel(" ")
 		
 		# Move button
-		self.b_move = QPushButton('Move')
-		self.b_move.clicked.connect(self.b_move_clicked)
+		self.b_move_abs = QPushButton('Move Absolute')
+		self.b_move_abs.clicked.connect(self.b_move_abs_clicked)
+		self.b_move_rel = QPushButton('Move Relative')
+		self.b_move_rel.clicked.connect(self.b_move_rel_clicked)
+		self.b_move_hme = QPushButton('Move Home')
+		self.b_move_hme.clicked.connect(self.b_move_hme_clicked)
 		self.l_move_feedback = QLabel(" ")
 		
 		# Scan parameters
@@ -96,7 +100,9 @@ class App(QWidget):
 		vbox.addWidget(self.l_pres_angle)
 		vbox.addWidget(QLabel('Angle to move (°)'))
 		vbox.addWidget(self.t_move_angle)
-		vbox.addWidget(self.b_move)
+		vbox.addWidget(self.b_move_abs)
+		vbox.addWidget(self.b_move_rel)
+		vbox.addWidget(self.b_move_hme)
 		vbox.addWidget(self.l_move_feedback)
 
 		self.setLayout(vbox)
@@ -104,22 +110,38 @@ class App(QWidget):
 		# Timer for data update
 		self.timer = QTimer(self)
 		self.timer.timeout.connect(self.timer_update_data)
-		self.timer.start(20)
+		self.timer.start(100)
 
 		# Show
 		self.show()
 
-	def b_move_clicked(self):
+	def b_move_abs_clicked(self):
+		self.b_move_clicked("ABS")
+
+	def b_move_rel_clicked(self):
+		self.b_move_clicked("RELA")
+		
+	def b_move_hme_clicked(self):
+		self.b_move_clicked("HOME")
+		
+	def b_move_clicked(self, button):
 
 		if self.rig_moving:
 			self.l_move_feedback.setText("Rig is already moving.")
 			return
-		try:
-			angle = float(self.t_move_angle.text())
-		except:
-			self.l_move_feedback.setText(f'Input angle is not valid.')
-		else:
-			self.l_move_feedback.setText(f'Going to move {angle}°.')
+
+		angle = 0
+
+		if button != "HOME":
+			try:
+				angle = float(self.t_move_angle.text())
+			except:
+				self.l_move_feedback.setText(f'Input angle is not valid.')
+			else:
+				self.l_move_feedback.setText(f'Going to move {angle}°.')
+
+		data_set = {"cmd": "MOVE", "params": [button, angle]}
+		self.client.publish("angle_rig/command", json.dumps(data_set))
 
 		try:
 			self.move_timer.stop()
