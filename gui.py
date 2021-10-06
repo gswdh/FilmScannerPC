@@ -24,6 +24,7 @@ class App(QWidget):
 		try:
 			self.l_cont_tick.setText(str(round(self.json_packet["tick"] / 1e6, 3)))
 			self.l_moving.setText(str(self.json_packet["moving"]))
+			self.l_angle_cntr.setText(str(self.json_packet["rotation_count"]))
 			self.l_sen_tick.setText(str(round(self.json_packet["dg"]["tick"] / 1e3, 3)))
 			self.l_x_angle.setText(str(round(self.json_packet["dg"]["g_x"], 3)))
 			self.l_y_angle.setText(str(round(self.json_packet["dg"]["g_y"], 3)))
@@ -59,6 +60,7 @@ class App(QWidget):
 		# Rig status
 		self.l_cont_tick = QLabel(" ")
 		self.l_moving = QLabel(" ")
+		self.l_angle_cntr = QLabel(" ")
 		self.l_sen_tick = QLabel(" ")
 		self.l_x_angle = QLabel(" ")
 		self.l_y_angle = QLabel(" ")
@@ -66,14 +68,17 @@ class App(QWidget):
 		self.l_temp = QLabel(" ")
 		self.l_pres_angle = QLabel(" ")
 		
-		# Move button
+		# Buttons
 		self.b_move_abs = QPushButton('Move Absolute')
 		self.b_move_abs.clicked.connect(self.b_move_abs_clicked)
 		self.b_move_rel = QPushButton('Move Relative')
 		self.b_move_rel.clicked.connect(self.b_move_rel_clicked)
 		self.b_move_hme = QPushButton('Move Home')
 		self.b_move_hme.clicked.connect(self.b_move_hme_clicked)
+		self.b_zero = QPushButton('Set Home')
+		self.b_zero.clicked.connect(self.b_zero_clicked)
 		self.l_move_feedback = QLabel(" ")
+
 		
 		# Scan parameters
 		self.t_move_angle = QLineEdit(self)
@@ -86,6 +91,8 @@ class App(QWidget):
 		vbox.addWidget(self.l_cont_tick)
 		vbox.addWidget(QLabel('Rig moving (bool)'))
 		vbox.addWidget(self.l_moving)
+		vbox.addWidget(QLabel('Rotation Counter (n)'))
+		vbox.addWidget(self.l_angle_cntr)
 		vbox.addWidget(QLabel('Sensor Tick (s)'))
 		vbox.addWidget(self.l_sen_tick)
 		vbox.addWidget(QLabel('ADXL Angle X (°)'))
@@ -103,6 +110,7 @@ class App(QWidget):
 		vbox.addWidget(self.b_move_abs)
 		vbox.addWidget(self.b_move_rel)
 		vbox.addWidget(self.b_move_hme)
+		vbox.addWidget(self.b_zero)
 		vbox.addWidget(self.l_move_feedback)
 
 		self.setLayout(vbox)
@@ -151,6 +159,11 @@ class App(QWidget):
 		self.move_timer = QTimer(self)
 		self.move_timer.timeout.connect(self.l_move_timer)
 		self.move_timer.start(3000)
+
+	def b_zero_clicked(self):
+
+		data_set = {"cmd": "HOME", "params": []}
+		self.client.publish("angle_rig/command", json.dumps(data_set))		
 
 	def l_move_timer(self):
 		self.l_move_feedback.setText('')
