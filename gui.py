@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QLineEdit, QSlider, QComboBox, QWidget
 from PyQt5.QtGui import QIcon, QPixmap
 import paho.mqtt.client as mqtt
 import json
+import numpy as np
 
 class App(QWidget):
 
@@ -21,14 +22,22 @@ class App(QWidget):
 	    	pass
 
 	def timer_update_data(self):
+
 		try:
+			self.angle_x = np.rad2deg(np.arctan(self.json_packet["dg"]["g_x"] / self.json_packet["dg"]["g_z"]))
+			self.angle_y = np.rad2deg(np.arctan(self.json_packet["dg"]["g_y"] / self.json_packet["dg"]["g_z"]))
+		except:
+			pass
+
+		try:
+
 			self.l_cont_tick.setText(str(round(self.json_packet["tick"] / 1e6, 3)))
 			self.l_moving.setText(str(self.json_packet["moving"]))
 			self.l_angle_cntr.setText(str(self.json_packet["rotation_count"]))
 			self.l_sen_tick.setText(str(round(self.json_packet["dg"]["tick"] / 1e3, 3)))
-			self.l_x_angle.setText(str(round(self.json_packet["dg"]["g_x"], 3)))
-			self.l_y_angle.setText(str(round(self.json_packet["dg"]["g_y"], 3)))
-			self.l_z_angle.setText(str(round(self.json_packet["dg"]["g_y"], 3)))
+			self.l_x_angle.setText(str(round(self.angle_x, 3)))
+			self.l_y_angle.setText(str(round(self.angle_y, 3)))
+			#self.l_z_angle.setText(str(round(angle_z, 3)))
 			self.l_temp.setText(str(round(self.json_packet["dg"]["temp"], 3)))
 			self.l_pres_angle.setText(str(round(self.json_packet["dg"]["angle"], 3)))
 
@@ -46,8 +55,8 @@ class App(QWidget):
 		self.client = mqtt.Client()
 		self.client.on_connect = self.mqtt_on_connect
 		self.client.on_message = self.mqtt_on_message
-		self.client.username_pw_set("jtm", password="rbjtm0805")
-		self.client.connect("mb.jackthemaker.co", 1883, 60)
+		#self.client.username_pw_set("gui", password="angle_rig")
+		self.client.connect("gsmbp", 1883, 60)
 		self.client.loop_start()
 
 		# Window init
@@ -99,9 +108,7 @@ class App(QWidget):
 		vbox.addWidget(self.l_x_angle)
 		vbox.addWidget(QLabel('ADXL Angle Y (°)'))
 		vbox.addWidget(self.l_y_angle)
-		vbox.addWidget(QLabel('ADXL Angle Z (°)'))
-		vbox.addWidget(self.l_z_angle)
-		vbox.addWidget(QLabel('ADXL Temperature (°)'))
+		vbox.addWidget(QLabel('ADXL Temperature (°C)'))
 		vbox.addWidget(self.l_temp)
 		vbox.addWidget(QLabel('Electrolytic Angle (°)'))
 		vbox.addWidget(self.l_pres_angle)
