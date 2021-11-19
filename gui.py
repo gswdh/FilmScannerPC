@@ -9,42 +9,49 @@ import numpy as np
 
 class App(QWidget):
 
-	json_packet = ""
-	rig_moving = False
+	# Controller data
+	cont_tick = 0
+	cont_moving = False
+	cont_angle_cngr = 0
+
+	# Sensor data
+	sensor_tick = 0
+	sensor_adxl_x = 0
+	sensor_adxl_y = 0
+	sensor_adxl_temp = 0
+	sensor_tilt_angle = 0
 
 	def mqtt_on_connect(self, client, userdata, flags, rc):
-	    client.subscribe("angle_rig/stream")
+		client.subscribe("angle_rig/stream/controller")
+		client.subscribe("angle_rig/stream/sensor")
 
 	def mqtt_on_message(self, client, userdata, msg):
-	    try:
-	    	self.json_packet = json.loads(msg.payload)
-	    except:
-	    	pass
-
-	def timer_update_data(self):
-
 		try:
-			self.angle_x = np.rad2deg(np.arctan(self.json_packet["dg"]["g_x"] / self.json_packet["dg"]["g_z"]))
-			self.angle_y = np.rad2deg(np.arctan(self.json_packet["dg"]["g_y"] / self.json_packet["dg"]["g_z"]))
+			self.json_packet = json.loads(msg.payload)
 		except:
 			pass
+		else:
+			if msg.topic in "angle_rig/stream/sensor":
+				try:
+					self.sensor_adxl_x = np.rad2deg(np.arctan(self.json_packet["g_x"] / self.json_packet["g_z"]))
+					self.sensor_adxl_y = np.rad2deg(np.arctan(self.json_packet["g_y"] / self.json_packet["g_z"]))
+				except:
+					pass
+				self.sensor_tilt_angle = self.json_packet["angle"]
+			if msg.topic in "angle_rig/stream/controller":
+				pass
 
+	def timer_update_data(self):
 		try:
-
-			self.l_cont_tick.setText(str(round(self.json_packet["tick"] / 1e6, 3)))
-			self.l_moving.setText(str(self.json_packet["moving"]))
-			self.l_angle_cntr.setText(str(self.json_packet["rotation_count"]))
-			self.l_sen_tick.setText(str(round(self.json_packet["dg"]["tick"] / 1e3, 3)))
-			self.l_x_angle.setText(str(round(self.angle_x, 3)))
-			self.l_y_angle.setText(str(round(self.angle_y, 3)))
+			#self.l_cont_tick.setText(str(round(self.json_packet["tick"] / 1e6, 3)))
+			#self.l_moving.setText(str(self.json_packet["moving"]))
+			#self.l_angle_cntr.setText(str(self.json_packet["rotation_count"]))
+			#self.l_sen_tick.setText(str(round(self.json_packet["dg"]["tick"] / 1e3, 3)))
+			self.l_x_angle.setText(str(round(self.sensor_adxl_x, 3)))
+			self.l_y_angle.setText(str(round(self.sensor_adxl_y, 3)))
 			#self.l_z_angle.setText(str(round(angle_z, 3)))
-			self.l_temp.setText(str(round(self.json_packet["dg"]["temp"], 3)))
-			self.l_pres_angle.setText(str(round(self.json_packet["dg"]["angle"], 3)))
-
-			if "false" in str(self.json_packet["moving"]):
-				rig_moving = False
-			else:
-				rig_moving = True
+			#self.l_temp.setText(str(round(self.json_packet["dg"]["temp"], 3)))
+			self.l_pres_angle.setText(str(round(self.sensor_tilt_angle, 3)))
 		except:
 			pass
 
@@ -56,7 +63,7 @@ class App(QWidget):
 		self.client.on_connect = self.mqtt_on_connect
 		self.client.on_message = self.mqtt_on_message
 		#self.client.username_pw_set("gui", password="angle_rig")
-		self.client.connect("gsmbp", 1883, 60)
+		self.client.connect("192.168.1.11", 1883, 60)
 		self.client.loop_start()
 
 		# Window init
