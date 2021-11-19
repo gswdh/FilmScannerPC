@@ -39,13 +39,15 @@ class App(QWidget):
 					pass
 				self.sensor_tilt_angle = self.json_packet["angle"]
 			if msg.topic in "angle_rig/stream/controller":
-				pass
+				self.cont_tick = self.json_packet["tick"]
+				self.cont_moving = self.json_packet["moving"]
+				self.cont_angle_cngr = self.json_packet["rotation_count"]
 
 	def timer_update_data(self):
 		try:
-			#self.l_cont_tick.setText(str(round(self.json_packet["tick"] / 1e6, 3)))
-			#self.l_moving.setText(str(self.json_packet["moving"]))
-			#self.l_angle_cntr.setText(str(self.json_packet["rotation_count"]))
+			self.l_cont_tick.setText(str(round(self.cont_tick / 1e6, 3)))
+			self.l_moving.setText(str(self.cont_moving))
+			self.l_angle_cntr.setText(str(self.cont_angle_cngr))
 			#self.l_sen_tick.setText(str(round(self.json_packet["dg"]["tick"] / 1e3, 3)))
 			self.l_x_angle.setText(str(round(self.sensor_adxl_x, 3)))
 			self.l_y_angle.setText(str(round(self.sensor_adxl_y, 3)))
@@ -148,7 +150,7 @@ class App(QWidget):
 		
 	def b_move_clicked(self, button):
 
-		if self.rig_moving:
+		if self.cont_moving:
 			self.l_move_feedback.setText("Rig is already moving.")
 			return
 
