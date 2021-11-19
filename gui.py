@@ -6,6 +6,7 @@ from PyQt5.QtGui import QIcon, QPixmap
 import paho.mqtt.client as mqtt
 import json
 import numpy as np
+import time
 
 class App(QWidget):
 
@@ -20,6 +21,9 @@ class App(QWidget):
 	sensor_adxl_y = 0
 	sensor_adxl_temp = 0
 	sensor_tilt_angle = 0
+
+	# Sytstem operation
+	zeroing_en = False
 
 	def mqtt_on_connect(self, client, userdata, flags, rc):
 		client.subscribe("angle_rig/stream/controller")
@@ -53,7 +57,7 @@ class App(QWidget):
 			self.l_y_angle.setText(str(round(self.sensor_adxl_y, 3)))
 			#self.l_z_angle.setText(str(round(angle_z, 3)))
 			#self.l_temp.setText(str(round(self.json_packet["dg"]["temp"], 3)))
-			self.l_pres_angle.setText(str(round(self.sensor_tilt_angle, 3)))
+			self.l_pres_angle.setText(str(round(self.sensor_tilt_angle, 4)))
 		except:
 			pass
 
@@ -65,7 +69,7 @@ class App(QWidget):
 		self.client.on_connect = self.mqtt_on_connect
 		self.client.on_message = self.mqtt_on_message
 		#self.client.username_pw_set("gui", password="angle_rig")
-		self.client.connect("192.168.1.11", 1883, 60)
+		self.client.connect("10.0.0.152", 1883, 60)
 		self.client.loop_start()
 
 		# Window init
@@ -95,6 +99,8 @@ class App(QWidget):
 		self.b_move_hme.clicked.connect(self.b_move_hme_clicked)
 		self.b_zero = QPushButton('Set Home')
 		self.b_zero.clicked.connect(self.b_zero_clicked)
+		self.b_zero_electro = QPushButton('Zero System')
+		self.b_zero_electro.clicked.connect(self.b_zero_electro_clicked)
 		self.l_move_feedback = QLabel(" ")
 
 		
@@ -127,6 +133,7 @@ class App(QWidget):
 		vbox.addWidget(self.b_move_rel)
 		vbox.addWidget(self.b_move_hme)
 		vbox.addWidget(self.b_zero)
+		vbox.addWidget(self.b_zero_electro)
 		vbox.addWidget(self.l_move_feedback)
 
 		self.setLayout(vbox)
@@ -152,6 +159,10 @@ class App(QWidget):
 
 		if self.cont_moving:
 			self.l_move_feedback.setText("Rig is already moving.")
+			return
+
+		if self.zeroing_en:
+			self.l_move_feedback.setText("Rig is begin zeroed.")
 			return
 
 		angle = 0
@@ -184,6 +195,30 @@ class App(QWidget):
 	def l_move_timer(self):
 		self.l_move_feedback.setText('')
 		self.move_timer.stop()
+
+	def b_zero_electro_clicked(self):
+		# Start the zeroing timer
+		zeroing_en = True
+		self.zero_timer = QTimer(self)
+		self.zero_timer.timeout.connect(self.cb_zero_timer)
+		self.zero_timer.start(3000)
+		self.cb_zero_timer()
+
+	def cb_zero_timer(self):
+		if -0.0025 <= self.sensor_tilt_angle <= 0.0025:
+			self.zero_timer.stop()
+			zeroing_en = False
+			self.l_move_feedback.setText(f'Zeroing complete.')
+			self.move_timer = QTimer(self)
+			self.move_timer.timeout.connect(self.l_move_timer)
+			self.move_timer.start(3000)
+		# Apply opposite angle
+		if not self.cont_moving:
+			data_set = {"cmd": "MOVE", "params": ["RELA", -self.sensor_tilt_angle]}
+			self.client.publish("angle_rig/command", json.dumps(data_set))
+			self.l_move_feedback.setText(f'New iteration, moving {round(-self.sensor_tilt_angle, 4)}°.')
+
+
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
