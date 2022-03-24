@@ -18,7 +18,6 @@ class Scanner:
 		self.dev = False
 
 	def transmit(self, data):
-		print(len(data))
 		self.dev.write(data)
 
 	def receive(self):
@@ -95,7 +94,7 @@ class Scanner:
 		self.dev.close()
 		self.dev = False
 
-	def start(self, device, gain, offset, brightness, ip, control_port, data_port):
+	def start(self, device, gain, offset, brightness):
 		
 		# Connect to the scanner
 		self.connect(device)

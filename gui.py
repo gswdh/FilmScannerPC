@@ -1,17 +1,15 @@
 import sys
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QApplication, QLineEdit, QSlider, QComboBox, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton
-from PyQt5.QtGui import QIcon, QPixmap
-import scanner
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+from scanner import Scanner
+from worker import Worker
 
 class App(QWidget):
 
 	def __init__(self):
 		super().__init__()
 
-		# Create ourselves a scanner object
-		self.scnr = scanner.Scanner()
-		
 		# Window init
 		self.setWindowTitle('GSWDH Film Scanner Controller')
 		self.setGeometry(10, 10, 1200, 600)
@@ -37,7 +35,7 @@ class App(QWidget):
 		self.t_scan_length = QLineEdit(self)
 		
 		# Setup the gain slider
-		self.s_gain = QSlider(QtCore.Qt.Horizontal)
+		self.s_gain = QSlider(Qt.Horizontal)
 		self.s_gain.setRange(1, 10)
 		self.s_gain.setSingleStep(1)
 		self.s_gain.valueChanged.connect(self.s_gain_changed)
@@ -45,7 +43,7 @@ class App(QWidget):
 		self.s_gain_changed()
 
 		# Setup the offset slider
-		self.s_offset = QSlider(QtCore.Qt.Horizontal)
+		self.s_offset = QSlider(Qt.Horizontal)
 		self.s_offset.setRange(0, 100)
 		self.s_offset.setSingleStep(1)
 		self.s_offset.valueChanged.connect(self.s_offset_changed)
@@ -53,7 +51,7 @@ class App(QWidget):
 		self.s_offset_changed()
 
 		# Setup the brightness slider
-		self.s_brightness = QSlider(QtCore.Qt.Horizontal)
+		self.s_brightness = QSlider(Qt.Horizontal)
 		self.s_brightness.setRange(0, 100)
 		self.s_brightness.setSingleStep(1)
 		self.s_brightness.setValue(100)
@@ -63,7 +61,7 @@ class App(QWidget):
 
 		# Layout
 		vbox = QVBoxLayout()
-		vbox.setAlignment(QtCore.Qt.AlignTop)
+		vbox.setAlignment(Qt.AlignTop)
 		vbox.addWidget(QLabel('Scanner'))
 		vbox.addWidget(self.b_refresh)
 		vbox.addWidget(self.c_devices)
@@ -88,19 +86,27 @@ class App(QWidget):
 		self.show()
 
 	def b_refresh_clicked(self):
-		devices = self.scnr.list_devices()
+		scnr = Scanner()
+		devices = scnr.list_devices()
 		self.c_devices.clear()
 		for device in devices:
 			self.c_devices.addItem(device)
+
+	def print_output(self, s):
+		print(s)
+	
+	def thread_complete(self):
+		print("Thread quit")
 
 	def b_start_stop_clicked(self):
 		if self.scanning:
 			print('Stopping scanning...')
 
+			self.worker.stop()
+
 			# Do some things here.
 			self.scanning = False
 			self.b_start_stop.setText('Start')
-			self.scnr.stop()
 
 		else:
 			print('Starting scanning...')
@@ -108,13 +114,16 @@ class App(QWidget):
 			# Do some things here.
 			self.scanning = True
 			self.b_start_stop.setText('Stop')
-			gain = 0
-			offset = 0
-			brightness = 0
-			ip = 0
-			control_port = 0
-			data_port = 0
-			self.scnr.start(str(self.c_devices.currentText()), gain, offset, brightness, ip, control_port, data_port)
+
+			self.threadpool = QThreadPool()
+			device = str(self.c_devices.currentText())
+			gain = 1
+			offset = 1
+			brightness = 100
+			self.worker = Worker(device, gain, offset, brightness)
+			self.worker.signals.result.connect(self.print_output)
+			self.worker.signals.finished.connect(self.thread_complete)
+			self.threadpool.start(self.worker)
 
 	def s_gain_changed(self):
 		self.l_gain.setText(f'Gain = {self.s_gain.value()}')
