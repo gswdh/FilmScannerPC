@@ -32,12 +32,12 @@ class Worker(QRunnable):
 			self.signals.finished.emit()
 			return
 
-
 		data = np.array([])
+
+		line_ctr = 0
 
 		while self.run:
 			data = np.append(data, np.frombuffer(self.scanner.receive(), dtype=np.uint8))
-
 			if len(data):
 				index = np.where(data == 255)
 				if len(index):
@@ -46,7 +46,10 @@ class Worker(QRunnable):
 						if len(data) > 2047:
 							line = data[:2048]
 							data = data[2048:]
-							self.signals.result.emit(line)	
+							line_ctr = line_ctr + 1
+							if line_ctr == 150:
+								self.signals.line.emit(line)
+								line_ctr = 0
 					except:
 						pass
 

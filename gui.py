@@ -4,11 +4,20 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from scanner import Scanner
 from worker import Worker
+import numpy as np
 
 class App(QWidget):
 
 	def __init__(self):
 		super().__init__()
+
+		self.COLORTABLE=[]
+		for i in range(256): 
+			self.COLORTABLE.append(qRgb(int(i/4),int(i),int(i/2)))
+
+		a = np.random.random(512*512)
+		a = np.reshape(a,(512,512))
+		self.image = np.require(a, np.uint8, 'C')
 
 		# Window init
 		self.setWindowTitle('GSWDH Film Scanner Controller')
@@ -123,6 +132,7 @@ class App(QWidget):
 			self.worker = Worker(device, gain, offset, brightness)
 			self.worker.signals.result.connect(self.print_output)
 			self.worker.signals.finished.connect(self.thread_complete)
+			self.worker.signals.line.connect(self.handle_line)
 			self.threadpool.start(self.worker)
 
 	def s_gain_changed(self):
@@ -134,7 +144,13 @@ class App(QWidget):
 	def s_brightness_changed(self):
 		self.l_brightness.setText(f'LED Brightness = {self.s_brightness.value()} %')
 	
-
+	def handle_line(self, line):
+		if type(line) == np.ndarray:
+			if len(line) == 2048:
+				self.image = np.roll(self.image, 1)
+				img = QImage(self.image.data, 512, 512, QImage.Format_Indexed8)
+				img.setColorTable(self.COLORTABLE)
+				self.l_image_display.setPixmap(QPixmap.fromImage(img))
 
 		
 
