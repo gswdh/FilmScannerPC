@@ -18,6 +18,7 @@ class Scanner:
 		self.dev = False
 
 	def transmit(self, data):
+		print(len(data))
 		self.dev.write(data)
 
 	def receive(self):
@@ -29,7 +30,7 @@ class Scanner:
 		packet = gsbus.gs_make_packet(addr, data)
 
 		# Send the new packet
-		self.transmit(packet.decode("utf-8", errors='ignore'))
+		self.transmit(bytes(packet))
 
 	def setBlackLevel(self, level):
 		self.setReg(DAC_OFFSET_ADDR, int(level))
