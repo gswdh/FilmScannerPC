@@ -3,12 +3,13 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from multiprocessing.connection import Client
 from scanner import Scanner
+import time
+import numpy as np
 
 class WorkerSignals(QObject):
 	finished = pyqtSignal()
 	result = pyqtSignal(object)
-
-
+	line = pyqtSignal(object)
 
 class Worker(QRunnable):
 
@@ -22,14 +23,8 @@ class Worker(QRunnable):
 		self.offset = offset
 		self.brightness = brightness
 
-
-
 	@pyqtSlot()
 	def run(self):
-		# Do some tasks...
-
-		self.signals.result.emit("Thread running")
-
 		self.scanner = Scanner()
 
 		if self.scanner.start(self.device, self.gain, self.offset, self.brightness) != 'OKAY':
@@ -37,9 +32,24 @@ class Worker(QRunnable):
 			self.signals.finished.emit()
 			return
 
+
+		data = np.array([])
+
 		while self.run:
-			pass
-			
+			data = np.append(data, np.frombuffer(self.scanner.receive(), dtype=np.uint8))
+
+			if len(data):
+				index = np.where(data == 255)
+				if len(index):
+					try:
+						data = data[int(index[0][0]):]
+						if len(data) > 2047:
+							line = data[:2048]
+							data = data[2048:]
+							self.signals.result.emit(line)	
+					except:
+						pass
+
 		# Finish up
 		self.scanner.stop()
 		self.signals.finished.emit()
@@ -47,3 +57,26 @@ class Worker(QRunnable):
 	@pyqtSlot()
 	def stop(self):
 		self.run = False
+
+	@pyqtSlot()
+	def set_gain(self, gain):
+		try:
+			self.scanner.setGain(gain)
+		except:
+			pass
+
+	@pyqtSlot()
+	def set_offset(self, offset):
+		try:
+			self.scanner.setBlackLevel(offset)
+		except:
+			pass
+
+	@pyqtSlot()
+	def set_brightness(self, brightness):
+		try:
+			self.scanner.setLEDBrightness(brightness)
+		except:
+			pass
+
+	

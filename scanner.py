@@ -21,7 +21,10 @@ class Scanner:
 		self.dev.write(data)
 
 	def receive(self):
-		pass
+		return self.dev.read(nchars=1000, raw=False)
+
+	def get_bytes_availible(self):
+		return self.dev.getQueueStatus()
 
 	def setReg(self, addr, data):
 
@@ -111,7 +114,7 @@ class Scanner:
 		self.setBlackLevel(38275)
 
 		# Set the gain to the lowest
-		self.setGain(1)
+		self.setGain(2)
 
 		# Set the motor speed for full speed scan
 		self.setMotorSpeed(37306, 1)
