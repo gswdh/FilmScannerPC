@@ -108,7 +108,13 @@ class App(QWidget):
 			# Do some things here.
 			self.scanning = True
 			self.b_start_stop.setText('Stop')
-			self.scnr.start(str(self.c_devices.currentText()))
+			gain = 0
+			offset = 0
+			brightness = 0
+			ip = 0
+			control_port = 0
+			data_port = 0
+			self.scnr.start(str(self.c_devices.currentText()), gain, offset, brightness, ip, control_port, data_port)
 
 	def s_gain_changed(self):
 		self.l_gain.setText(f'Gain = {self.s_gain.value()}')
