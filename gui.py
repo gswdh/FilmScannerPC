@@ -177,13 +177,12 @@ class App(QWidget):
 
 	def handle_line(self, line):
 		if type(line) == np.ndarray:
-			if len(line) == self.image_h:
-				self.image = np.roll(self.image, shift=1, axis=0)
-				self.image[0] = line
-				img = QImage(self.image.data, self.image_h, self.image_w, QImage.Format_Indexed8)
-				img = img.transformed(QTransform().rotate(90))
-				self.l_image_display.setPixmap(QPixmap.fromImage(img))
-				self.l_line_value.setText(f'Mean Line Value = {int(np.mean(line))}')
+			self.image = np.roll(self.image, shift=150, axis=0)
+			self.image[0:len(line)] = np.flip(line)
+			img = QImage(self.image.data, self.image_h, self.image_w, QImage.Format_Indexed8)
+			img = img.transformed(QTransform().rotate(90))
+			self.l_image_display.setPixmap(QPixmap.fromImage(img))
+			self.l_line_value.setText(f'Mean Line Value = {int(np.mean(line))}')
 
 		
 

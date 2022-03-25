@@ -38,6 +38,7 @@ class Worker(QRunnable):
 
 		data = np.array([])
 		output_data = []
+		disp_lines = []
 
 		line_ctr = 0
 
@@ -53,7 +54,9 @@ class Worker(QRunnable):
 							data = data[2048:]
 							line_ctr = line_ctr + 1
 							if not (line_ctr % 150):
-								self.signals.line.emit(line[::4])
+								self.signals.line.emit(np.array(disp_lines, dtype=np.uint8))
+								disp_lines = []
+							disp_lines.append(line[::4])
 							output_data.append(line[1:])
 					except:
 						pass
