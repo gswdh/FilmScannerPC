@@ -11,11 +11,7 @@ class App(QWidget):
 	def __init__(self):
 		super().__init__()
 
-		self.COLORTABLE=[]
-		for i in range(256): 
-			self.COLORTABLE.append(qRgb(int(i/4),int(i),int(i/2)))
-
-		a = np.random.random(512*512)
+		a = np.zeros(512*512)
 		a = np.reshape(a,(512,512))
 		self.image = np.require(a, np.uint8, 'C')
 
@@ -146,10 +142,10 @@ class App(QWidget):
 	
 	def handle_line(self, line):
 		if type(line) == np.ndarray:
-			if len(line) == 2048:
-				self.image = np.roll(self.image, 1)
+			if len(line) == 512:
+				self.image = np.roll(self.image, shift=1, axis=0)
+				self.image[0] = line
 				img = QImage(self.image.data, 512, 512, QImage.Format_Indexed8)
-				img.setColorTable(self.COLORTABLE)
 				self.l_image_display.setPixmap(QPixmap.fromImage(img))
 
 		

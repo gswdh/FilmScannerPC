@@ -48,7 +48,7 @@ class Worker(QRunnable):
 							data = data[2048:]
 							line_ctr = line_ctr + 1
 							if line_ctr == 150:
-								self.signals.line.emit(line)
+								self.signals.line.emit(line[::4])
 								line_ctr = 0
 					except:
 						pass
