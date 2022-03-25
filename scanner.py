@@ -35,10 +35,18 @@ class Scanner:
 		self.transmit(bytes(packet))
 
 	def setBlackLevel(self, level):
+		level = int(65535.0 * level)
+		if level > 65535:
+			level = 65535
+		if level < 0:
+			level = 0
 		self.setReg(DAC_OFFSET_ADDR, int(level))
 
 	def setGain(self, gain):
-		gain_level = 65535 / gain
+		try:
+			gain_level = 65535 / gain
+		except:
+			gain_level = 65535
 		if gain_level > 65535:
 			gain_level = 65535
 		self.setReg(DAC_GAIN_ADDR, int(gain_level))		
@@ -51,6 +59,8 @@ class Scanner:
 		pwm_level = 255 * level;
 		if pwm_level > 255:
 			pwm_level = 255
+		if pwm_level < 0:
+			pwm_level = 0
 		self.setReg(LED_PWM_ADDR, int(pwm_level))
 
 	def setScanEnable(self, state):
@@ -111,7 +121,7 @@ class Scanner:
 			return 'FAIL'
 
 		# Setup the black level
-		self.setBlackLevel(38275)
+		self.setBlackLevel(0.5)
 
 		# Set the gain to the lowest
 		self.setGain(2)

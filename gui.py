@@ -41,7 +41,7 @@ class App(QWidget):
 		
 		# Setup the gain slider
 		self.s_gain = QSlider(Qt.Horizontal)
-		self.s_gain.setRange(1, 10)
+		self.s_gain.setRange(100, 500)
 		self.s_gain.setSingleStep(1)
 		self.s_gain.valueChanged.connect(self.s_gain_changed)
 		self.l_gain = QLabel('Gain')
@@ -51,6 +51,7 @@ class App(QWidget):
 		self.s_offset = QSlider(Qt.Horizontal)
 		self.s_offset.setRange(0, 100)
 		self.s_offset.setSingleStep(1)
+		self.s_offset.setValue(59)
 		self.s_offset.valueChanged.connect(self.s_offset_changed)
 		self.l_offset = QLabel('Offset (black level)')
 		self.s_offset_changed()
@@ -63,6 +64,9 @@ class App(QWidget):
 		self.s_brightness.valueChanged.connect(self.s_brightness_changed)		
 		self.l_brightness = QLabel('LED Brightness')
 		self.s_brightness_changed()
+
+		# Mean line value
+		self.l_line_value = QLabel('Mean Line Value')
 
 		# Layout
 		vbox = QVBoxLayout()
@@ -79,6 +83,7 @@ class App(QWidget):
 		vbox.addWidget(self.s_offset)
 		vbox.addWidget(self.l_brightness)
 		vbox.addWidget(self.s_brightness)
+		vbox.addWidget(self.l_line_value)
 
 		hbox = QHBoxLayout()
 		hbox.addWidget(self.l_image_display, 4)
@@ -122,9 +127,9 @@ class App(QWidget):
 
 			self.threadpool = QThreadPool()
 			device = str(self.c_devices.currentText())
-			gain = 1
-			offset = 1
-			brightness = 100
+			gain = float(self.s_gain.value()) / 100.0
+			offset = float(self.s_offset.value()) / 100.0
+			brightness = float(self.s_brightness.value()) / 100.0
 			self.worker = Worker(device, gain, offset, brightness)
 			self.worker.signals.result.connect(self.print_output)
 			self.worker.signals.finished.connect(self.thread_complete)
@@ -132,14 +137,26 @@ class App(QWidget):
 			self.threadpool.start(self.worker)
 
 	def s_gain_changed(self):
-		self.l_gain.setText(f'Gain = {self.s_gain.value()}')
-	
+		self.l_gain.setText(f'Gain = {self.s_gain.value() / 100.0}')
+		try:
+			self.worker.set_gain(float(self.s_gain.value()) / 100.0)
+		except:
+			pass
+
 	def s_offset_changed(self):
 		self.l_offset.setText(f'Offset (black level) = {self.s_offset.value()} %')
-	
+		try:
+			self.worker.set_offset(float(self.s_offset.value()) / 100.0)
+		except:
+			pass
+
 	def s_brightness_changed(self):
 		self.l_brightness.setText(f'LED Brightness = {self.s_brightness.value()} %')
-	
+		try:
+			self.worker.set_brightness(float(self.s_brightness.value()) / 100.0)
+		except:
+			pass
+
 	def handle_line(self, line):
 		if type(line) == np.ndarray:
 			if len(line) == 512:
@@ -147,6 +164,7 @@ class App(QWidget):
 				self.image[0] = line
 				img = QImage(self.image.data, 512, 512, QImage.Format_Indexed8)
 				self.l_image_display.setPixmap(QPixmap.fromImage(img))
+				self.l_line_value.setText(f'Mean Line Value = {np.mean(line)}')
 
 		
 
