@@ -5,6 +5,7 @@ from PyQt5.QtCore import *
 from scanner import Scanner
 from worker import Worker
 import numpy as np
+import datetime
 
 class App(QWidget):
 
@@ -118,7 +119,9 @@ class App(QWidget):
 
 	def b_start_stop_clicked(self):
 		if self.scanning:
-			text, okPressed = QInputDialog.getText(self, "Image File Name","File Name:", QLineEdit.Normal, "")
+			text, okPressed = QInputDialog.getText(self, \
+				"Image File Name","File Name:", \
+				QLineEdit.Normal, f"image {str(datetime.datetime.now()).split('.')[0].replace(':', '-')}")
 			self.worker.stop(text)
 
 			# Do some things here.
