@@ -140,10 +140,15 @@ class App(QWidget):
 			gain = float(self.s_gain.value()) / 100.0
 			offset = float(self.s_offset.value()) / 100.0
 			brightness = float(self.s_brightness.value()) / 100.0
-			self.worker = Worker(device, gain, offset, brightness)
+			try:
+				nlines = int(int(self.t_scan_length.text()) * 2048  * 1.5 * 1.2)
+			except:
+				nlines = 0
+			self.worker = Worker(device, gain, offset, brightness, nlines)
 			self.worker.signals.result.connect(self.print_output)
 			self.worker.signals.finished.connect(self.thread_complete)
 			self.worker.signals.line.connect(self.handle_line)
+			self.worker.signals.lines_done.connect(self.lines_done)
 			self.threadpool.start(self.worker)
 
 	def s_gain_changed(self):
@@ -166,6 +171,9 @@ class App(QWidget):
 			self.worker.set_brightness(float(self.s_brightness.value()) / 100.0)
 		except:
 			pass
+
+	def lines_done(self):
+		self.b_start_stop_clicked()
 
 	def handle_line(self, line):
 		if type(line) == np.ndarray:

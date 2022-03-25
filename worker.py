@@ -11,25 +11,28 @@ class WorkerSignals(QObject):
 	finished = pyqtSignal()
 	result = pyqtSignal(object)
 	line = pyqtSignal(object)
+	lines_done = pyqtSignal()
 
 class Worker(QRunnable):
 
 	run = True
 
-	def __init__(self, device, gain, offset, brightness):
+	def __init__(self, device, gain, offset, brightness, nlines):
 		super(Worker, self).__init__()
 		self.signals = WorkerSignals()
 		self.device = device
 		self.gain = gain
 		self.offset = offset
 		self.brightness = brightness
+		self.nlines = nlines
 
 	@pyqtSlot()
 	def run(self):
 		self.scanner = Scanner()
+		self.file_name = ''
+		self.proceed = False
 
 		if self.scanner.start(self.device, self.gain, self.offset, self.brightness) != 'OKAY':
-			# Could not connect
 			self.signals.finished.emit()
 			return
 
@@ -49,13 +52,21 @@ class Worker(QRunnable):
 							line = data[:2048]
 							data = data[2048:]
 							line_ctr = line_ctr + 1
-							if line_ctr == 150:
+							if not (line_ctr % 150):
 								self.signals.line.emit(line[::4])
-								line_ctr = 0
 							output_data.append(line[1:])
 					except:
 						pass
+			if self.nlines:
+				if line_ctr > self.nlines:
+					self.signals.lines_done.emit()
+					self.run = False
 
+		# Wait for something
+		while not self.proceed:
+			pass
+
+		# If the filename contains something, write out
 		if self.file_name:
 			self.file_name = str(self.file_name.split('.')[0])
 			self.file_name = self.file_name + '.png'
@@ -72,6 +83,7 @@ class Worker(QRunnable):
 	@pyqtSlot()
 	def stop(self, file_name):
 		self.file_name = file_name
+		self.proceed = True
 		self.run = False
 
 	@pyqtSlot()
