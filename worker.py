@@ -5,6 +5,7 @@ from multiprocessing.connection import Client
 from scanner import Scanner
 import time
 import numpy as np
+from PIL import Image
 
 class WorkerSignals(QObject):
 	finished = pyqtSignal()
@@ -33,6 +34,7 @@ class Worker(QRunnable):
 			return
 
 		data = np.array([])
+		output_data = np.zeros(2047)
 
 		line_ctr = 0
 
@@ -50,8 +52,15 @@ class Worker(QRunnable):
 							if line_ctr == 150:
 								self.signals.line.emit(line[::4])
 								line_ctr = 0
+							output_data = np.vstack((output_data, line[1:]))
+
 					except:
 						pass
+
+		# Write the output data to file
+		#np.save(f'image_{time.time()}.txt', output_data)
+		img = Image.fromarray(output_data, 'L')
+		img.save(f'image_{time.time()}.png')
 
 		# Finish up
 		self.scanner.stop()

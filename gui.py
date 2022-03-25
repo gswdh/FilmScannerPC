@@ -11,13 +11,11 @@ class App(QWidget):
 	def __init__(self):
 		super().__init__()
 
-		a = np.zeros(512*512)
-		a = np.reshape(a,(512,512))
-		self.image = np.require(a, np.uint8, 'C')
-
 		# Window init
 		self.setWindowTitle('GSWDH Film Scanner Controller')
-		self.setGeometry(10, 10, 1200, 600)
+
+		self.image_w = 900
+		self.image_h = 512
 
 		# GUI init
 
@@ -91,9 +89,18 @@ class App(QWidget):
 
 		self.setLayout(hbox)
 
-	
+		a = np.zeros(self.image_h*self.image_w)
+		a = np.reshape(a,(self.image_w,self.image_h))
+		self.image = np.require(a, np.uint8, 'C')
+
+		img = QImage(self.image.data, self.image_h, self.image_w, QImage.Format_Indexed8)
+		img = img.transformed(QTransform().rotate(90))
+		self.l_image_display.setPixmap(QPixmap.fromImage(img))
+
 		# Show
 		self.show()
+
+		self.setFixedSize(self.size())
 
 	def b_refresh_clicked(self):
 		scnr = Scanner()
@@ -106,12 +113,11 @@ class App(QWidget):
 		print(s)
 	
 	def thread_complete(self):
-		print("Thread quit")
+		pass
+		#print("Thread quit")
 
 	def b_start_stop_clicked(self):
 		if self.scanning:
-			print('Stopping scanning...')
-
 			self.worker.stop()
 
 			# Do some things here.
@@ -119,8 +125,8 @@ class App(QWidget):
 			self.b_start_stop.setText('Start')
 
 		else:
-			print('Starting scanning...')
-			
+			if not str(self.c_devices.currentText()):
+				return
 			# Do some things here.
 			self.scanning = True
 			self.b_start_stop.setText('Stop')
@@ -159,12 +165,13 @@ class App(QWidget):
 
 	def handle_line(self, line):
 		if type(line) == np.ndarray:
-			if len(line) == 512:
+			if len(line) == self.image_h:
 				self.image = np.roll(self.image, shift=1, axis=0)
 				self.image[0] = line
-				img = QImage(self.image.data, 512, 512, QImage.Format_Indexed8)
+				img = QImage(self.image.data, self.image_h, self.image_w, QImage.Format_Indexed8)
+				img = img.transformed(QTransform().rotate(90))
 				self.l_image_display.setPixmap(QPixmap.fromImage(img))
-				self.l_line_value.setText(f'Mean Line Value = {np.mean(line)}')
+				self.l_line_value.setText(f'Mean Line Value = {int(np.mean(line))}')
 
 		
 
