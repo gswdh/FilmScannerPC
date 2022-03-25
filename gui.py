@@ -118,7 +118,8 @@ class App(QWidget):
 
 	def b_start_stop_clicked(self):
 		if self.scanning:
-			self.worker.stop()
+			text, okPressed = QInputDialog.getText(self, "Image File Name","File Name:", QLineEdit.Normal, "")
+			self.worker.stop(text)
 
 			# Do some things here.
 			self.scanning = False

@@ -56,18 +56,22 @@ class Worker(QRunnable):
 					except:
 						pass
 
-		# Write the output data to file
-		output_data = np.array(output_data, dtype=np.uint8)
-		img = cv2.cvtColor(output_data, cv2.COLOR_GRAY2BGR)
-		img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
-		cv2.imwrite('image.png', img)
+		if self.file_name:
+			self.file_name = str(self.file_name.split('.')[0])
+			self.file_name = self.file_name + '.png'
+			# Write the output data to file
+			output_data = np.array(output_data, dtype=np.uint8)
+			img = cv2.cvtColor(output_data, cv2.COLOR_GRAY2BGR)
+			img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+			cv2.imwrite(self.file_name, img)
 
 		# Finish up
 		self.scanner.stop()
 		self.signals.finished.emit()
 
 	@pyqtSlot()
-	def stop(self):
+	def stop(self, file_name):
+		self.file_name = file_name
 		self.run = False
 
 	@pyqtSlot()
