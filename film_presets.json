@@ -29,6 +29,12 @@
          "gain":1,
          "offset":59,
          "brightness":100
+      },
+      {
+         "name":"Ilford Pan F+",
+         "gain":1,
+         "offset":59,
+         "brightness":100
       }
    ]
 }
