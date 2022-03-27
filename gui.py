@@ -23,7 +23,6 @@ class App(QWidget):
 
 		# A place to put the scanned image 
 		self.l_image_display = QLabel(self)
-		self.l_image_display.setStyleSheet("background-color: lightgreen")
 
 		# Refresh button
 		self.b_refresh = QPushButton('Refresh')
@@ -38,7 +37,11 @@ class App(QWidget):
 		self.c_devices = QComboBox(self)
 		self.b_refresh_clicked()
 		self.t_scan_length = QLineEdit(self)
-		
+	
+		# Film presets
+		self.c_presets = QComboBox(self)
+		self.c_presets.activated.connect(self.c_preset_selected)
+
 		# Setup the gain slider
 		self.s_gain = QSlider(Qt.Horizontal)
 		self.s_gain.setRange(100, 500)
@@ -74,6 +77,8 @@ class App(QWidget):
 		vbox.addWidget(QLabel('Scanner'))
 		vbox.addWidget(self.b_refresh)
 		vbox.addWidget(self.c_devices)
+		vbox.addWidget(QLabel('Scan Setting Presets'))
+		vbox.addWidget(self.c_presets)
 		vbox.addWidget(QLabel('Scan Length (frames)'))
 		vbox.addWidget(self.t_scan_length)
 		vbox.addWidget(self.b_start_stop)
@@ -91,6 +96,7 @@ class App(QWidget):
 
 		self.setLayout(hbox)
 
+		# Some inits
 		a = np.zeros(self.image_h*self.image_w)
 		a = np.reshape(a,(self.image_w,self.image_h))
 		self.image = np.require(a, np.uint8, 'C')
@@ -99,9 +105,11 @@ class App(QWidget):
 		img = img.transformed(QTransform().rotate(90))
 		self.l_image_display.setPixmap(QPixmap.fromImage(img))
 
+		self.c_add_presets()
+		self.c_preset_selected()
+
 		# Show
 		self.show()
-
 		self.setFixedSize(self.size())
 
 	def b_refresh_clicked(self):
@@ -110,13 +118,6 @@ class App(QWidget):
 		self.c_devices.clear()
 		for device in devices:
 			self.c_devices.addItem(device)
-
-	def print_output(self, s):
-		print(s)
-	
-	def thread_complete(self):
-		pass
-		#print("Thread quit")
 
 	def b_start_stop_clicked(self):
 		if self.scanning:
@@ -146,8 +147,6 @@ class App(QWidget):
 			except:
 				nlines = 0
 			self.worker = Worker(device, gain, offset, brightness, nlines)
-			self.worker.signals.result.connect(self.print_output)
-			self.worker.signals.finished.connect(self.thread_complete)
 			self.worker.signals.line.connect(self.handle_line)
 			self.worker.signals.lines_done.connect(self.lines_done)
 			self.threadpool.start(self.worker)
@@ -185,7 +184,17 @@ class App(QWidget):
 			self.l_image_display.setPixmap(QPixmap.fromImage(img))
 			self.l_line_value.setText(f'Mean Line Value = {int(np.mean(line))}')
 
-		
+	def c_preset_selected(self):
+		if self.c_presets.currentText() == 'Default':
+			self.s_gain.setValue(100)
+			self.s_offset.setValue(57)
+			self.s_brightness.setValue(100)
+		else:
+			pass
+
+	def c_add_presets(self):
+		self.c_presets.clear()
+		self.c_presets.addItem('Default')
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
