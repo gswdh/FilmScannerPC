@@ -6,6 +6,7 @@ from scanner import Scanner
 from worker import Worker
 import numpy as np
 import datetime
+import json
 
 class App(QWidget):
 
@@ -190,11 +191,36 @@ class App(QWidget):
 			self.s_offset.setValue(57)
 			self.s_brightness.setValue(100)
 		else:
-			pass
+			for film in self.film_presets['films']:
+				if film['name'] == self.c_presets.currentText():
+					gain = int(film['gain'] * 100)
+					offset = int(film['offset'])
+					brightness = int(film['brightness'])
+					if gain > 500:
+						gain = 500
+					if gain < 100:
+						gain = 100
+					if offset > 100:
+						offset = 100
+					if offset < 0:
+						offset = 0
+					if brightness > 100:
+						brightness = 100
+					if brightness < 0:
+						brightness = 0
+					self.s_gain.setValue(gain)
+					self.s_offset.setValue(offset)
+					self.s_brightness.setValue(brightness)			
 
 	def c_add_presets(self):
 		self.c_presets.clear()
 		self.c_presets.addItem('Default')
+
+		with open('film_presets.json') as json_file:
+			self.film_presets = json.load(json_file)
+
+		for film in self.film_presets['films']:
+			self.c_presets.addItem(film['name'])
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)

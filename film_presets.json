@@ -1,0 +1,34 @@
+{
+   "films":[
+      {
+         "name":"Ilford Delta 100 Pro",
+         "gain":1,
+         "offset":70,
+         "brightness":100
+      },
+      {
+         "name":"Ilford Delta 400 Pro",
+         "gain":1,
+         "offset":72,
+         "brightness":100
+      },
+      {
+         "name":"Ilford Delta 3200 Pro",
+         "gain":1,
+         "offset":65,
+         "brightness":100
+      },
+      {
+         "name":"Ilford HP5+",
+         "gain":1,
+         "offset":69,
+         "brightness":100
+      },
+      {
+         "name":"Ilford FP4+",
+         "gain":1,
+         "offset":59,
+         "brightness":100
+      }
+   ]
+}
