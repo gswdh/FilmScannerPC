@@ -35,6 +35,24 @@
          "gain":1,
          "offset":59,
          "brightness":100
+      },
+      {
+         "name":"Ilford XP2 Super",
+         "gain":1,
+         "offset":59,
+         "brightness":100
+      },
+      {
+         "name":"Kentmere 100",
+         "gain":1,
+         "offset":59,
+         "brightness":100
+      },
+      {
+         "name":"Kentmere 400",
+         "gain":1,
+         "offset":59,
+         "brightness":100
       }
    ]
 }
