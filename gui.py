@@ -10,6 +10,8 @@ import json
 
 class App(QWidget):
 
+	thread_running = False
+
 	def __init__(self):
 		super().__init__()
 
@@ -148,8 +150,10 @@ class App(QWidget):
 			except:
 				nlines = 0
 			self.worker = Worker(device, gain, offset, brightness, nlines)
-			self.worker.signals.line.connect(self.handle_line)
-			self.worker.signals.lines_done.connect(self.lines_done)
+			self.worker.signals.line.connect(self.t_handle_line)
+			self.worker.signals.lines_done.connect(self.t_lines_done)
+			self.worker.signals.finished.connect(self.t_quit)
+			self.thread_running = True
 			self.threadpool.start(self.worker)
 
 	def s_gain_changed(self):
@@ -173,10 +177,13 @@ class App(QWidget):
 		except:
 			pass
 
-	def lines_done(self):
+	def t_quit(self):
+		self.thread_running = False
+
+	def t_lines_done(self):
 		self.b_start_stop_clicked()
 
-	def handle_line(self, line):
+	def t_handle_line(self, line):
 		if type(line) == np.ndarray:
 			self.image = np.roll(self.image, shift=150, axis=0)
 			self.image[0:len(line)] = np.flip(line)
@@ -226,4 +233,12 @@ if __name__ == '__main__':
 	app = QApplication(sys.argv)
 	app.setWindowIcon(QIcon('logo.png'))
 	ex = App()
-	sys.exit(app.exec_())
+	exit_handler = app.exec_()
+	try:
+		ex.worker.stop('')
+	except:
+		pass
+	sys.exit(exit_handler)
+	
+
+
