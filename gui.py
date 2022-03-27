@@ -14,6 +14,7 @@ class App(QWidget):
 
 		# Window init
 		self.setWindowTitle('GSWDH Film Scanner Controller')
+		self.setWindowIcon(QIcon('logo.png'))
 
 		self.image_w = 900
 		self.image_h = 512
@@ -188,5 +189,6 @@ class App(QWidget):
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
+	app.setWindowIcon(QIcon('logo.png'))
 	ex = App()
 	sys.exit(app.exec_())
