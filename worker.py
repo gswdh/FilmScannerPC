@@ -18,7 +18,7 @@ class WorkerSignals(QObject):
 class Worker(QRunnable):
     run = True
 
-    def __init__(self, device, gain, offset, brightness, nlines):
+    def __init__(self, device, gain, offset, brightness, nlines, manual_mode):
         super(Worker, self).__init__()
         self.signals = WorkerSignals()
         self.device = device
@@ -26,6 +26,7 @@ class Worker(QRunnable):
         self.offset = offset
         self.brightness = brightness
         self.nlines = nlines
+        self.manual_mode = manual_mode
 
     @pyqtSlot()
     def run(self):
@@ -34,7 +35,9 @@ class Worker(QRunnable):
         self.proceed = False
 
         if (
-            self.scanner.start(self.device, self.gain, self.offset, self.brightness)
+            self.scanner.start(
+                self.device, self.gain, self.offset, self.brightness, self.manual_mode
+            )
             != "OKAY"
         ):
             self.signals.finished.emit()
@@ -115,5 +118,19 @@ class Worker(QRunnable):
     def set_brightness(self, brightness):
         try:
             self.scanner.setLEDBrightness(brightness)
+        except:
+            pass
+
+    @pyqtSlot()
+    def set_motor_velocity(self, speed, dir):
+        try:
+            self.scanner.setMotorSpeed(speed, dir)
+        except:
+            pass
+
+    @pyqtSlot()
+    def set_motor_enable(self, state):
+        try:
+            self.scanner.setMotorState(state)
         except:
             pass

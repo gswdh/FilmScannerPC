@@ -36,6 +36,17 @@ class App(QWidget):
         self.b_start_stop.clicked.connect(self.b_start_stop_clicked)
         self.scanning = False
 
+        # Manual or auto motor mode
+        self.cb_manual_auto = QCheckBox("Manual Motor")
+
+        # Left and right motor control
+        self.b_mtr_left = QPushButton("<")
+        self.b_mtr_left.pressed.connect(self.b_mtr_left_click)
+        self.b_mtr_left.released.connect(self.b_mtr_left_release)
+        self.b_mtr_right = QPushButton(">")
+        self.b_mtr_right.pressed.connect(self.b_mtr_right_click)
+        self.b_mtr_right.released.connect(self.b_mtr_right_release)
+
         # Scan parameters
         self.c_devices = QComboBox(self)
         self.b_refresh_clicked()
@@ -85,6 +96,11 @@ class App(QWidget):
         vbox.addWidget(QLabel("Scan Length (frames)"))
         vbox.addWidget(self.t_scan_length)
         vbox.addWidget(self.b_start_stop)
+        vbox.addWidget(self.cb_manual_auto)
+        hbox = QHBoxLayout()
+        hbox.addWidget(self.b_mtr_left)
+        hbox.addWidget(self.b_mtr_right)
+        vbox.addLayout(hbox)
         vbox.addWidget(self.l_gain)
         vbox.addWidget(self.s_gain)
         vbox.addWidget(self.l_offset)
@@ -155,7 +171,8 @@ class App(QWidget):
                 nlines = int(int(self.t_scan_length.text()) * 2048 * 1.5 * 1.2)
             except:
                 nlines = 0
-            self.worker = Worker(device, gain, offset, brightness, nlines)
+            manual_mode = self.cb_manual_auto.isChecked()
+            self.worker = Worker(device, gain, offset, brightness, nlines, manual_mode)
             self.worker.signals.line.connect(self.t_handle_line)
             self.worker.signals.lines_done.connect(self.t_lines_done)
             self.worker.signals.finished.connect(self.t_quit)
@@ -236,6 +253,20 @@ class App(QWidget):
 
         for film in self.film_presets["films"]:
             self.c_presets.addItem(film["name"])
+
+    def b_mtr_left_click(self):
+        self.worker.set_motor_velocity(0, 0)
+        self.worker.set_motor_enable(True)
+
+    def b_mtr_left_release(self):
+        self.worker.set_motor_enable(False)
+
+    def b_mtr_right_click(self):
+        self.worker.set_motor_velocity(0, 1)
+        self.worker.set_motor_enable(True)
+
+    def b_mtr_right_release(self):
+        self.worker.set_motor_enable(False)
 
 
 if __name__ == "__main__":

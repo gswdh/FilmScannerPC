@@ -54,6 +54,9 @@ class Scanner:
         self.setReg(MTR_SPEED_ADDR, int(speed))
         self.setReg(MTR_DIR_ADDR, int(direc))
 
+    def setMotorState(self, state):
+        self.setReg(MTR_EN_ADDR, int(state))
+
     def setLEDBrightness(self, level):
         pwm_level = 255 * level
         if pwm_level > 255:
@@ -62,8 +65,10 @@ class Scanner:
             pwm_level = 0
         self.setReg(LED_PWM_ADDR, int(pwm_level))
 
-    def setScanEnable(self, state):
+    def setScanEnable(self, state, manual_mode):
         self.setReg(SCAN_EN_ADDR, int(state))
+        if not manual_mode:
+            self.setReg(MTR_EN_ADDR, int(state))
 
     def setScanSampleMode(self, mode):
         self.setReg(SCAN_SUB_SAMPLE_ADDR, int(mode))
@@ -106,7 +111,7 @@ class Scanner:
         self.dev.close()
         self.dev = False
 
-    def start(self, device, gain, offset, brightness):
+    def start(self, device, gain, offset, brightness, manual_mode):
         # Connect to the scanner
         self.connect(device)
 
@@ -119,16 +124,16 @@ class Scanner:
             return "FAIL"
 
         # Setup the black level
-        self.setBlackLevel(0.5)
+        self.setBlackLevel(offset)
 
         # Set the gain to the lowest
-        self.setGain(2)
+        self.setGain(gain)
 
         # Set the motor speed for full speed scan
-        self.setMotorSpeed(37306, 1)
+        self.setMotorSpeed(4080, 0)
 
         # Set the LED value to off
-        self.setLEDBrightness(0)
+        self.setLEDBrightness(brightness)
 
         # Full resolution scan
         self.setScanSampleMode(0)
@@ -137,13 +142,13 @@ class Scanner:
         self.setScanFrameRate(0)
 
         # Stop any scanning
-        self.setScanEnable(1)
+        self.setScanEnable(1, manual_mode)
 
         return "OKAY"
 
     def stop(self):
         # Stop any scanning
-        self.setScanEnable(0)
+        self.setScanEnable(0, False)
 
         # Disconnect from the FT232H
         self.disconnect()
