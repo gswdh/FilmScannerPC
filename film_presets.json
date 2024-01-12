@@ -53,6 +53,12 @@
          "gain": 1,
          "offset": 59,
          "brightness": 100
+      },
+      {
+         "name": "Kodak Pro Image 100",
+         "gain": 2,
+         "offset": 57,
+         "brightness": 100
       }
    ]
 }

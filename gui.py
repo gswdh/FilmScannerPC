@@ -85,6 +85,9 @@ class App(QWidget):
         # Mean line value
         self.l_line_value = QLabel("Mean Line Value")
 
+        # Line sharpness value
+        self.l_line_sharpness = QLabel("Line Sharpness")
+
         # Layout
         vbox = QVBoxLayout()
         vbox.setAlignment(Qt.AlignTop)
@@ -108,6 +111,7 @@ class App(QWidget):
         vbox.addWidget(self.l_brightness)
         vbox.addWidget(self.s_brightness)
         vbox.addWidget(self.l_line_value)
+        vbox.addWidget(self.l_line_sharpness)
 
         hbox = QHBoxLayout()
         hbox.addWidget(self.l_image_display, 4)
@@ -216,6 +220,12 @@ class App(QWidget):
             img = img.transformed(QTransform().rotate(90))
             self.l_image_display.setPixmap(QPixmap.fromImage(img))
             self.l_line_value.setText(f"Mean Line Value = {int(np.mean(line))}")
+            gy, gx = np.gradient(line)
+            gnorm = np.sqrt(gx**2 + gy**2)
+            sharpness = np.average(gnorm)
+            self.l_line_sharpness.setText(
+                f"Line Sharpness = {round(float(sharpness), 3)}"
+            )
 
     def c_preset_selected(self):
         if self.c_presets.currentText() == "Default":
