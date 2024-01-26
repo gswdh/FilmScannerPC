@@ -80,6 +80,9 @@ class Worker(QRunnable):
         while not self.proceed:
             pass
 
+        # Stop the scanner
+        self.scanner.stop()
+
         # If the filename contains something, write out
         if self.file_name:
             self.file_name = str(self.file_name.split(".")[0])
@@ -88,10 +91,14 @@ class Worker(QRunnable):
             output_data = np.array(output_data, dtype=np.uint8)
             img = cv2.cvtColor(output_data, cv2.COLOR_GRAY2BGR)
             img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            height, width = img.shape[:2]
+            new_width = int(width / 4.75)
+            img = cv2.resize(img, (new_width, height), interpolation=cv2.INTER_LINEAR)
+            max_pixel_value = np.iinfo(img.dtype).max
+            img = max_pixel_value - img
             cv2.imwrite(self.file_name, img)
 
         # Finish up
-        self.scanner.stop()
         self.signals.finished.emit()
 
     @pyqtSlot()

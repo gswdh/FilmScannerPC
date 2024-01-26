@@ -130,7 +130,7 @@ class Scanner:
         self.setGain(gain)
 
         # Set the motor speed for full speed scan
-        self.setMotorSpeed(7722, 0)
+        self.setMotorSpeed(0, 0)
 
         # Set the LED value to off
         self.setLEDBrightness(brightness)
