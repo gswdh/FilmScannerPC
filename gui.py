@@ -88,6 +88,10 @@ class App(QWidget):
         # Line sharpness value
         self.l_line_sharpness = QLabel("Line Sharpness")
 
+        # Min and max line value
+        self.l_line_max = QLabel("Line Max Value")
+        self.l_line_min = QLabel("Line Min Value")
+
         # Layout
         vbox = QVBoxLayout()
         vbox.setAlignment(Qt.AlignTop)
@@ -112,6 +116,8 @@ class App(QWidget):
         vbox.addWidget(self.s_brightness)
         vbox.addWidget(self.l_line_value)
         vbox.addWidget(self.l_line_sharpness)
+        vbox.addWidget(self.l_line_max)
+        vbox.addWidget(self.l_line_min)
 
         hbox = QHBoxLayout()
         hbox.addWidget(self.l_image_display, 4)
@@ -226,6 +232,8 @@ class App(QWidget):
             self.l_line_sharpness.setText(
                 f"Line Sharpness = {round(float(sharpness), 3)}"
             )
+            self.l_line_max.setText(f"Line Max Value = {int(np.max(line[50:-50]))}")
+            self.l_line_min.setText(f"Line Min Value = {int(np.min(line[50:-50]))}")
 
     def c_preset_selected(self):
         if self.c_presets.currentText() == "Default":
