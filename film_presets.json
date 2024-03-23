@@ -1,63 +1,9 @@
 {
    "films": [
       {
-         "name": "Ilford Delta 100 Pro",
-         "gain": 1,
-         "offset": 70,
-         "brightness": 100
-      },
-      {
          "name": "Ilford Delta 400 Pro",
-         "gain": 1.35,
+         "gain": 1.3,
          "offset": 58,
-         "brightness": 100
-      },
-      {
-         "name": "Ilford Delta 3200 Pro",
-         "gain": 1,
-         "offset": 65,
-         "brightness": 100
-      },
-      {
-         "name": "Ilford HP5+",
-         "gain": 1,
-         "offset": 69,
-         "brightness": 100
-      },
-      {
-         "name": "Ilford FP4+",
-         "gain": 1,
-         "offset": 59,
-         "brightness": 100
-      },
-      {
-         "name": "Ilford Pan F+",
-         "gain": 1,
-         "offset": 59,
-         "brightness": 100
-      },
-      {
-         "name": "Ilford XP2 Super",
-         "gain": 1,
-         "offset": 59,
-         "brightness": 100
-      },
-      {
-         "name": "Kentmere 100",
-         "gain": 1,
-         "offset": 59,
-         "brightness": 100
-      },
-      {
-         "name": "Kentmere 400",
-         "gain": 1,
-         "offset": 59,
-         "brightness": 100
-      },
-      {
-         "name": "Kodak Pro Image 100",
-         "gain": 2,
-         "offset": 57,
          "brightness": 100
       }
    ]
