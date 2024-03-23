@@ -18,7 +18,7 @@ class WorkerSignals(QObject):
 class Worker(QRunnable):
     run = True
 
-    def __init__(self, device, gain, offset, brightness, nlines, manual_mode):
+    def __init__(self, device, gain, offset, brightness, nlines, manual_mode, speed):
         super(Worker, self).__init__()
         self.signals = WorkerSignals()
         self.device = device
@@ -27,6 +27,7 @@ class Worker(QRunnable):
         self.brightness = brightness
         self.nlines = nlines
         self.manual_mode = manual_mode
+        self.speed = speed
 
     @pyqtSlot()
     def run(self):
@@ -36,8 +37,7 @@ class Worker(QRunnable):
 
         if (
             self.scanner.start(
-                self.device, self.gain, self.offset, self.brightness, self.manual_mode
-            )
+                self.device, self.gain, self.offset, self.brightness, self.manual_mode, self.speed)
             != "OKAY"
         ):
             self.signals.finished.emit()
@@ -92,7 +92,7 @@ class Worker(QRunnable):
             img = cv2.cvtColor(output_data, cv2.COLOR_GRAY2BGR)
             img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
             height, width = img.shape[:2]
-            new_width = int(width / 4.75)
+            new_width = int(width / 2.258)
             img = cv2.resize(img, (new_width, height), interpolation=cv2.INTER_LINEAR)
             max_pixel_value = np.iinfo(img.dtype).max
             img = max_pixel_value - img

@@ -111,7 +111,7 @@ class Scanner:
         self.dev.close()
         self.dev = False
 
-    def start(self, device, gain, offset, brightness, manual_mode):
+    def start(self, device, gain, offset, brightness, manual_mode, speed):
         # Connect to the scanner
         self.connect(device)
 
@@ -130,7 +130,7 @@ class Scanner:
         self.setGain(gain)
 
         # Set the motor speed for full speed scan
-        self.setMotorSpeed(0, 0)
+        self.setMotorSpeed(speed, 0)
 
         # Set the LED value to off
         self.setLEDBrightness(brightness)

@@ -8,6 +8,7 @@ import numpy as np
 import datetime
 import json
 
+mtr_speed = 20000
 
 class App(QWidget):
     thread_running = False
@@ -182,7 +183,7 @@ class App(QWidget):
             except:
                 nlines = 0
             manual_mode = self.cb_manual_auto.isChecked()
-            self.worker = Worker(device, gain, offset, brightness, nlines, manual_mode)
+            self.worker = Worker(device, gain, offset, brightness, nlines, manual_mode, mtr_speed)
             self.worker.signals.line.connect(self.t_handle_line)
             self.worker.signals.lines_done.connect(self.t_lines_done)
             self.worker.signals.finished.connect(self.t_quit)
@@ -225,10 +226,10 @@ class App(QWidget):
             )
             img = img.transformed(QTransform().rotate(90))
             self.l_image_display.setPixmap(QPixmap.fromImage(img))
+            line = line[0]
             self.l_line_value.setText(f"Mean Line Value = {int(np.mean(line))}")
-            gy, gx = np.gradient(line)
-            gnorm = np.sqrt(gx**2 + gy**2)
-            sharpness = np.average(gnorm)
+            gx = np.gradient(line) ** 2
+            sharpness = np.average(gx)
             self.l_line_sharpness.setText(
                 f"Line Sharpness = {round(float(sharpness), 3)}"
             )
@@ -273,14 +274,14 @@ class App(QWidget):
             self.c_presets.addItem(film["name"])
 
     def b_mtr_left_click(self):
-        self.worker.set_motor_velocity(0, 0)
+        self.worker.set_motor_velocity(mtr_speed, 0)
         self.worker.set_motor_enable(True)
 
     def b_mtr_left_release(self):
         self.worker.set_motor_enable(False)
 
     def b_mtr_right_click(self):
-        self.worker.set_motor_velocity(0, 1)
+        self.worker.set_motor_velocity(mtr_speed, 1)
         self.worker.set_motor_enable(True)
 
     def b_mtr_right_release(self):
