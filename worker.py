@@ -7,7 +7,7 @@ import time
 import numpy as np
 import cv2
 
-CAL_LEN = 100
+CAL_LEN = 1000
 
 class WorkerSignals(QObject):
     finished = pyqtSignal()
