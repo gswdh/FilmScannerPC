@@ -93,6 +93,10 @@ class App(QWidget):
         self.l_line_max = QLabel("Line Max Value")
         self.l_line_min = QLabel("Line Min Value")
 
+        # Calibration button
+        self.b_cal = QPushButton("Calibrate")
+        self.b_cal.pressed.connect(self.b_cal_click)
+
         # Layout
         vbox = QVBoxLayout()
         vbox.setAlignment(Qt.AlignTop)
@@ -119,6 +123,8 @@ class App(QWidget):
         vbox.addWidget(self.l_line_sharpness)
         vbox.addWidget(self.l_line_max)
         vbox.addWidget(self.l_line_min)
+        vbox.addWidget(QLabel())
+        vbox.addWidget(self.b_cal)
 
         hbox = QHBoxLayout()
         hbox.addWidget(self.l_image_display, 4)
@@ -286,6 +292,9 @@ class App(QWidget):
 
     def b_mtr_right_release(self):
         self.worker.set_motor_enable(False)
+
+    def b_cal_click(self):
+        self.worker.calibrate()
 
 
 if __name__ == "__main__":

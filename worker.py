@@ -7,6 +7,7 @@ import time
 import numpy as np
 import cv2
 
+CAL_LEN = 100
 
 class WorkerSignals(QObject):
     finished = pyqtSignal()
@@ -28,6 +29,9 @@ class Worker(QRunnable):
         self.nlines = nlines
         self.manual_mode = manual_mode
         self.speed = speed
+        self.calibration = np.zeros(2047)
+        self.cal_data =  [np.zeros(2047) for _ in range(CAL_LEN)]
+        self.cal_cntr = CAL_LEN
 
     @pyqtSlot()
     def run(self):
@@ -67,8 +71,26 @@ class Worker(QRunnable):
                                     np.array(disp_lines, dtype=np.uint8)
                                 )
                                 disp_lines = []
-                            disp_lines.append(line[::4])
-                            output_data.append(line[1:])
+                            
+                            line_data = np.array(line[1:], dtype=np.float32) + self.calibration
+                            line_data = np.clip(line_data, 0, 255)
+                            line_data = line_data.astype(np.uint8)
+
+                            disp_lines.append(line_data[::4])
+                            output_data.append(line_data[1:])
+
+                            # Calibration routine
+                            if self.cal_cntr < CAL_LEN:
+                                # Add lines to build a history
+                                self.cal_data[self.cal_cntr] = line[1:]
+                                
+                                # At the end, make the average for the cal data
+                                if self.cal_cntr == CAL_LEN - 1:
+                                    self.calibration = 255 - np.mean(np.stack(self.cal_data), axis=0)
+                                    print(self.calibration)
+
+                                # Increment the counter
+                                self.cal_cntr += 1
                     except:
                         pass
             if self.nlines:
@@ -141,3 +163,7 @@ class Worker(QRunnable):
             self.scanner.setMotorState(state)
         except:
             pass
+
+    @pyqtSlot()
+    def calibrate(self):
+        self.cal_cntr = 0
