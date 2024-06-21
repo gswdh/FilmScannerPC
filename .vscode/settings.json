@@ -67,6 +67,7 @@
         "compare": "cpp",
         "concepts": "cpp",
         "algorithm": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "base64.h": "c"
     },
 }

@@ -11,7 +11,7 @@ INCLUDE_DIRS = -I.
 TARGET = main
 
 # Source files
-SRCS = main.cpp scanner.cpp line.cpp
+SRCS = main.cpp scanner.cpp line.cpp knokke.cpp
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)

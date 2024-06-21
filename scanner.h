@@ -20,28 +20,29 @@ class Scanner {
 
 private:
     std::vector<Line> lines;
-    scanner_scan_rate_t scan_rate;
 
 public:
+    scanner_scan_rate_t scan_rate;
+
     // Constructor
     Scanner(std::string serial_number);
 
     // High level
-    scanner_status_t start(const scanner_scan_rate_t scan_rate);
-    scanner_status_t stop(void);
+    virtual scanner_status_t start(const scanner_scan_rate_t scan_rate);
+    virtual scanner_status_t stop(void);
 
     // Backlight
-    scanner_status_t get_backlight_brightness(const float* brightness) const;
-    scanner_status_t set_backlight_brightness(const float brightness);
+    virtual scanner_status_t get_backlight_brightness(const float* brightness) const;
+    virtual scanner_status_t set_backlight_brightness(const float brightness);
 
     // Motor in units of mm/s film speed
-    scanner_status_t get_motor_speed(const float* speed) const;
-    scanner_status_t set_motor_speed(const float speed);
+    virtual scanner_status_t get_motor_speed(const float* speed) const;
+    virtual scanner_status_t set_motor_speed(const float speed);
 
     // Sensor public
-    scanner_status_t get_scan_rate(const scanner_scan_rate_t* scan_rate) const;
-    scanner_status_t set_scan_rate(const scanner_scan_rate_t scan_rate);
+    virtual scanner_status_t get_scan_rate(const scanner_scan_rate_t* scan_rate) const;
+    virtual scanner_status_t set_scan_rate(const scanner_scan_rate_t scan_rate);
 
     // Data interface
-    scanner_status_t get_line(const Line* line);
+    virtual scanner_status_t get_line(const Line* line);
 };
